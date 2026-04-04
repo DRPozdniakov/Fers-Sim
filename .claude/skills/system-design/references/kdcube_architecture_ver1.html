@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KDCube AI App — System Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-50: #eff6ff; --blue-100: #dbeafe; --blue-200: #bfdbfe;
+    --blue-500: #3b82f6; --blue-600: #2563eb; --blue-700: #1d4ed8;
+    --green-50: #f0fdf4; --green-100: #dcfce7; --green-500: #22c55e; --green-600: #16a34a;
+    --orange-50: #fff7ed; --orange-100: #ffedd5; --orange-500: #f97316; --orange-600: #ea580c;
+    --purple-50: #faf5ff; --purple-100: #f3e8ff; --purple-500: #a855f7; --purple-600: #9333ea;
+    --red-50: #fef2f2; --red-100: #fee2e2; --red-500: #ef4444; --red-600: #dc2626;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+    --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
+    --gray-800: #1f2937; --gray-900: #111827;
+    --yellow-50: #fefce8; --yellow-100: #fef9c3; --yellow-500: #eab308;
+    --teal-50: #f0fdfa; --teal-500: #14b8a6; --teal-600: #0d9488;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fff;
+    color: var(--gray-800);
+    line-height: 1.6;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    background: var(--gray-900);
+    color: #fff;
+    padding: 48px 0 40px;
+    text-align: center;
+  }
+  .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+  .header p { color: var(--gray-400); font-size: 16px; margin-top: 8px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+  /* ─── Nav ─── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: #fff; border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  .nav a {
+    display: block; padding: 14px 20px;
+    font-size: 13px; font-weight: 500; color: var(--gray-500);
+    text-decoration: none; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav a:hover { color: var(--gray-800); }
+  .nav a.active { color: var(--blue-600); border-bottom-color: var(--blue-600); }
+
+  /* ─── Sections ─── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+  section { padding: 56px 0; border-bottom: 1px solid var(--gray-100); }
+  section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--blue-600); margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 24px; font-weight: 700; color: var(--gray-900);
+    margin-bottom: 12px; letter-spacing: -0.3px;
+  }
+  .section-desc {
+    font-size: 15px; color: var(--gray-500); max-width: 700px;
+    margin-bottom: 32px; line-height: 1.7;
+  }
+
+  /* ─── Diagram Container ─── */
+  .diagram-wrap {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 40px;
+    margin: 24px 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .diagram-wrap svg { display: block; margin: 0 auto; }
+
+  /* ─── Flow Steps ─── */
+  .flow-steps {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px; margin-top: 24px;
+  }
+  .flow-step {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 16px 20px;
+    background: #fff; border: 1px solid var(--gray-200); border-radius: 10px;
+  }
+  .flow-step .step-num {
+    flex-shrink: 0; width: 28px; height: 28px;
+    background: var(--blue-600); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+  }
+  .flow-step .step-text h4 { font-size: 14px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
+  .flow-step .step-text p { font-size: 13px; color: var(--gray-500); line-height: 1.5; }
+
+  /* ─── Data Model ─── */
+  .data-models {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px; margin-top: 32px;
+  }
+  .data-model {
+    background: #fff; border: 1px solid var(--gray-200); border-radius: 10px;
+    overflow: hidden;
+  }
+  .data-model-header {
+    padding: 12px 16px;
+    font-size: 14px; font-weight: 600; color: #fff;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .data-model-header.pg { background: var(--blue-600); }
+  .data-model-header.redis { background: var(--red-500); }
+  .data-model-header.s3 { background: var(--orange-500); }
+  .data-model-header.neo4j { background: var(--teal-500); }
+
+  .data-model-body { padding: 12px 16px; }
+  .data-model-body .field {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+  }
+  .data-model-body .field:last-child { border-bottom: none; }
+  .data-model-body .field .fname { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gray-700); }
+  .data-model-body .field .ftype { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gray-400); }
+  .data-model-body .field .fpk { font-size: 10px; background: var(--yellow-100); color: var(--yellow-500); padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; }
+
+  /* ─── Info Box ─── */
+  .info-box {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 16px 20px; border-radius: 10px; margin: 20px 0;
+    font-size: 14px; line-height: 1.6;
+  }
+  .info-box.blue { background: var(--blue-50); border: 1px solid var(--blue-200); color: var(--blue-700); }
+  .info-box.green { background: var(--green-50); border: 1px solid var(--green-100); color: var(--green-600); }
+  .info-box.orange { background: var(--orange-50); border: 1px solid var(--orange-100); color: var(--orange-600); }
+  .info-box .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ─── Legend ─── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 20px;
+    margin: 16px 0 0; font-size: 13px; color: var(--gray-500);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-swatch {
+    width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  /* ─── SVG Styles ─── */
+  svg text { font-family: 'Inter', sans-serif; }
+  svg .node-rect {
+    rx: 8; ry: 8;
+    stroke-width: 1.5;
+  }
+  svg .arrow-line {
+    fill: none; stroke-width: 1.5;
+    marker-end: url(#arrowhead);
+  }
+  svg .arrow-label {
+    font-size: 11px; fill: var(--gray-500);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  svg .node-label {
+    font-size: 13px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+  }
+  svg .node-sublabel {
+    font-size: 10px; font-weight: 400;
+    text-anchor: middle; dominant-baseline: central;
+    fill: var(--gray-400);
+  }
+  svg .group-box {
+    rx: 12; ry: 12; fill: none;
+    stroke-dasharray: 6 4;
+  }
+  svg .group-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  svg .step-circle {
+    stroke-width: 0;
+  }
+  svg .step-num-text {
+    font-size: 11px; font-weight: 700; fill: #fff;
+    text-anchor: middle; dominant-baseline: central;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    .diagram-wrap { padding: 20px; }
+    .nav { padding: 0 16px; }
+    .header h1 { font-size: 24px; }
+    .flow-steps { grid-template-columns: 1fr; }
+    .data-models { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<div class="header">
+  <div class="container">
+    <h1>KDCube AI App &mdash; System Architecture</h1>
+    <p>Self-hosted platform + SDK for building and operating agentic chat applications and copilots</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ NAV ═══════════════════════ -->
+<div class="nav" id="nav">
+  <a href="#overview" class="active">Overview</a>
+  <a href="#auth">Auth Flow</a>
+  <a href="#streaming">Streaming</a>
+  <a href="#bundles">Bundles &amp; Runtime</a>
+  <a href="#storage">Storage &amp; Data</a>
+  <a href="#economics">Economics</a>
+  <a href="#scaling">Scaling</a>
+</div>
+
+<!-- ═══════════════════════ SVG DEFS ═══════════════════════ -->
+<svg style="position:absolute;width:0;height:0;">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af"/>
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e"/>
+    </marker>
+    <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f97316"/>
+    </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+    </marker>
+  </defs>
+</svg>
+
+
+<!-- ═══════════════════════ 1. OVERVIEW ═══════════════════════ -->
+<section id="overview">
+<div class="container">
+  <div class="section-label">High-Level Design</div>
+  <div class="section-title">System Overview</div>
+  <div class="section-desc">
+    KDCube processes chat messages through a queue-based pipeline. Clients connect via SSE or Socket.IO,
+    messages are enqueued into Redis, workers execute dynamic bundle workflows,
+    and events stream back through a Redis Pub/Sub relay.
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 880 740" width="880" height="740">
+
+      <!-- ════════ ROW 1 (y=20): Entry ════════ -->
+      <rect x="160" y="20" width="130" height="50" class="node-rect" fill="#fff" stroke="#3b82f6"/>
+      <text x="225" y="42" class="node-label" fill="#1d4ed8">Web UI</text>
+      <text x="225" y="56" class="node-sublabel">React 19 + Redux</text>
+
+      <rect x="360" y="20" width="130" height="50" class="node-rect" fill="#faf5ff" stroke="#a855f7"/>
+      <text x="425" y="42" class="node-label" fill="#7c3aed">ProxyLogin</text>
+      <text x="425" y="56" class="node-sublabel">Auth + 2FA</text>
+
+      <line x1="360" y1="45" x2="292" y2="45" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <text x="316" y="38" class="arrow-label" fill="#a855f7">tokens</text>
+
+      <!-- ════════ ROW 2 (y=110): Nginx + services ════════ -->
+      <rect x="160" y="110" width="130" height="50" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="225" y="132" class="node-label" fill="#1d4ed8">Nginx Proxy</text>
+      <text x="225" y="146" class="node-sublabel">TLS + cookies</text>
+
+      <rect x="360" y="110" width="130" height="50" class="node-rect" fill="#f0fdfa" stroke="#14b8a6"/>
+      <text x="425" y="132" class="node-label" fill="#0d9488">Knowledge Base</text>
+      <text x="425" y="146" class="node-sublabel">Hybrid search</text>
+
+      <rect x="560" y="110" width="140" height="50" class="node-rect" fill="#faf5ff" stroke="#a855f7"/>
+      <text x="630" y="132" class="node-label" fill="#7c3aed">Control Plane</text>
+      <text x="630" y="146" class="node-sublabel">Policies + quotas</text>
+
+      <line x1="225" y1="70" x2="225" y2="108" class="arrow-line" stroke="#9ca3af"/>
+      <text x="234" y="94" class="arrow-label">HTTPS</text>
+
+      <!-- ════════ ROW 3 (y=210): Gateway ════════ -->
+      <rect x="120" y="210" width="260" height="70" class="node-rect" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <text x="250" y="234" class="node-label" fill="#1d4ed8" font-size="14">Chat API + Gateway</text>
+      <text x="250" y="252" class="node-sublabel">FastAPI &bull; Rate limit &bull; Backpressure</text>
+      <rect x="134" y="264" width="42" height="14" rx="3" fill="#dbeafe"/>
+      <text x="155" y="274" font-size="9" font-weight="500" fill="#2563eb" text-anchor="middle">REST</text>
+      <rect x="182" y="264" width="38" height="14" rx="3" fill="#dbeafe"/>
+      <text x="201" y="274" font-size="9" font-weight="500" fill="#2563eb" text-anchor="middle">SSE</text>
+      <rect x="226" y="264" width="60" height="14" rx="3" fill="#dbeafe"/>
+      <text x="256" y="274" font-size="9" font-weight="500" fill="#2563eb" text-anchor="middle">Socket.IO</text>
+      <rect x="292" y="264" width="58" height="14" rx="3" fill="#f3e8ff"/>
+      <text x="321" y="274" font-size="9" font-weight="500" fill="#7c3aed" text-anchor="middle">Gateway</text>
+
+      <line x1="225" y1="160" x2="225" y2="208" class="arrow-line" stroke="#9ca3af"/>
+      <text x="234" y="190" class="arrow-label">SSE / Socket.IO</text>
+      <line x1="410" y1="160" x2="320" y2="208" class="arrow-line" stroke="#14b8a6" marker-end="url(#arrowhead)"/>
+      <line x1="600" y1="160" x2="360" y2="208" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+
+      <!-- ════════ ROW 4 (y=330): Queue ════════ -->
+      <rect x="180" y="330" width="140" height="50" class="node-rect" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="250" y="352" class="node-label" fill="#dc2626">Redis Queues</text>
+      <text x="250" y="366" class="node-sublabel">by user type</text>
+
+      <line x1="250" y1="280" x2="250" y2="328" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <circle cx="250" cy="304" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="250" y="305" class="step-num-text">1</text>
+      <text x="264" y="304" class="arrow-label">enqueue</text>
+
+      <!-- ════════ ROW 5 (y=430): Processor ════════ -->
+      <rect x="180" y="430" width="140" height="50" class="node-rect" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="250" y="452" class="node-label" fill="#16a34a">Processor</text>
+      <text x="250" y="466" class="node-sublabel">Workers (N instances)</text>
+
+      <line x1="250" y1="380" x2="250" y2="428" class="arrow-line" stroke="#9ca3af"/>
+      <circle cx="250" cy="404" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="250" y="405" class="step-num-text">2</text>
+      <text x="264" y="404" class="arrow-label">dequeue + lock</text>
+
+      <!-- ════════ ROW 6 (y=530): Bundles ════════ -->
+      <rect x="155" y="530" width="190" height="86" class="node-rect" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+      <text x="250" y="555" class="node-label" fill="#ea580c" font-size="14">Dynamic Bundles</text>
+      <text x="250" y="572" class="node-sublabel">Agentic Workflows</text>
+      <rect x="166" y="582" width="46" height="14" rx="3" fill="#ffedd5"/>
+      <text x="189" y="592" font-size="9" font-weight="500" fill="#ea580c" text-anchor="middle">ReAct</text>
+      <rect x="218" y="582" width="40" height="14" rx="3" fill="#ffedd5"/>
+      <text x="238" y="592" font-size="9" font-weight="500" fill="#ea580c" text-anchor="middle">Tools</text>
+      <rect x="264" y="582" width="36" height="14" rx="3" fill="#ffedd5"/>
+      <text x="282" y="592" font-size="9" font-weight="500" fill="#ea580c" text-anchor="middle">Code</text>
+      <rect x="306" y="582" width="30" height="14" rx="3" fill="#ffedd5"/>
+      <text x="321" y="592" font-size="9" font-weight="500" fill="#ea580c" text-anchor="middle">LG</text>
+
+      <line x1="250" y1="480" x2="250" y2="528" class="arrow-line" stroke="#f97316" marker-end="url(#arrowhead-orange)"/>
+      <circle cx="250" cy="504" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="250" y="505" class="step-num-text">3</text>
+      <text x="264" y="504" class="arrow-label">execute</text>
+
+      <!-- ════════ ROW 7 (y=666): Relay ════════ -->
+      <rect x="180" y="666" width="140" height="50" class="node-rect" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="250" y="688" class="node-label" fill="#dc2626">Redis Relay</text>
+      <text x="250" y="702" class="node-sublabel">Pub/Sub per session</text>
+
+      <line x1="250" y1="616" x2="250" y2="664" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <circle cx="250" cy="640" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="250" y="641" class="step-num-text">4</text>
+      <text x="264" y="640" class="arrow-label">chat events</text>
+
+      <!-- ════════ RETURN PATH (left gutter) ════════ -->
+      <!-- Step 5: Relay -> Gateway via left side -->
+      <path d="M 180 691 L 80 691 L 80 245" class="arrow-line" stroke="#2563eb" fill="none" marker-end="url(#arrowhead-blue)"/>
+      <circle cx="80" cy="480" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="80" y="481" class="step-num-text">5</text>
+      <text x="66" y="460" class="arrow-label" fill="#2563eb" text-anchor="end">fan-out</text>
+
+      <!-- Step 6: Gateway -> UI via far left -->
+      <path d="M 120 235 L 30 235 L 30 45 L 158 45" class="arrow-line" stroke="#3b82f6" fill="none" marker-end="url(#arrowhead-blue)"/>
+      <circle cx="30" cy="135" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="30" y="136" class="step-num-text">6</text>
+      <text x="18" y="110" class="arrow-label" fill="#3b82f6" text-anchor="end">stream</text>
+
+      <!-- ════════ STORAGE (right column, y=210-620) ════════ -->
+      <rect x="600" y="210" width="130" height="420" rx="10" fill="none" stroke="#d1d5db" stroke-dasharray="6 4"/>
+      <text x="665" y="232" class="group-label" fill="#6b7280" text-anchor="middle">STORAGE</text>
+
+      <!-- Postgres -->
+      <ellipse cx="665" cy="268" rx="40" ry="9" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+      <rect x="625" y="268" width="80" height="30" fill="#dbeafe" stroke="none"/>
+      <line x1="625" y1="268" x2="625" y2="298" stroke="#2563eb" stroke-width="1.5"/>
+      <line x1="705" y1="268" x2="705" y2="298" stroke="#2563eb" stroke-width="1.5"/>
+      <ellipse cx="665" cy="298" rx="40" ry="9" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+      <text x="665" y="288" class="node-label" fill="#1d4ed8" font-size="11">PostgreSQL</text>
+
+      <!-- Redis -->
+      <ellipse cx="665" cy="350" rx="40" ry="9" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <rect x="625" y="350" width="80" height="30" fill="#fee2e2" stroke="none"/>
+      <line x1="625" y1="350" x2="625" y2="380" stroke="#ef4444" stroke-width="1.5"/>
+      <line x1="705" y1="350" x2="705" y2="380" stroke="#ef4444" stroke-width="1.5"/>
+      <ellipse cx="665" cy="380" rx="40" ry="9" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="665" y="370" class="node-label" fill="#dc2626" font-size="11">Redis</text>
+
+      <!-- S3 -->
+      <ellipse cx="665" cy="432" rx="40" ry="9" fill="#ffedd5" stroke="#f97316" stroke-width="1.5"/>
+      <rect x="625" y="432" width="80" height="30" fill="#ffedd5" stroke="none"/>
+      <line x1="625" y1="432" x2="625" y2="462" stroke="#f97316" stroke-width="1.5"/>
+      <line x1="705" y1="432" x2="705" y2="462" stroke="#f97316" stroke-width="1.5"/>
+      <ellipse cx="665" cy="462" rx="40" ry="9" fill="#ffedd5" stroke="#f97316" stroke-width="1.5"/>
+      <text x="665" y="452" class="node-label" fill="#ea580c" font-size="11">S3</text>
+
+      <!-- Neo4j -->
+      <ellipse cx="665" cy="510" rx="40" ry="9" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <rect x="625" y="510" width="80" height="30" fill="#f0fdfa" stroke="none"/>
+      <line x1="625" y1="510" x2="625" y2="540" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <line x1="705" y1="510" x2="705" y2="540" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <ellipse cx="665" cy="540" rx="40" ry="9" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="665" y="530" class="node-label" fill="#0d9488" font-size="10">Neo4j (opt)</text>
+
+      <!-- Arrows: Bundles -> Storage -->
+      <line x1="345" y1="556" x2="623" y2="288" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="345" y1="566" x2="623" y2="365" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="345" y1="576" x2="623" y2="450" class="arrow-line" stroke="#9ca3af"/>
+
+      <!-- ════════ EXTERNAL PROVIDERS (right, y=600) ════════ -->
+      <rect x="420" y="560" width="310" height="60" rx="10" fill="none" stroke="#22c55e" stroke-dasharray="6 4"/>
+      <text x="436" y="578" class="group-label" fill="#16a34a">EXTERNAL PROVIDERS</text>
+      <rect x="432" y="590" width="54" height="22" rx="5" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="459" y="605" font-size="10" font-weight="500" fill="#16a34a" text-anchor="middle">OpenAI</text>
+      <rect x="494" y="590" width="64" height="22" rx="5" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="526" y="605" font-size="10" font-weight="500" fill="#16a34a" text-anchor="middle">Anthropic</text>
+      <rect x="566" y="590" width="54" height="22" rx="5" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="593" y="605" font-size="10" font-weight="500" fill="#16a34a" text-anchor="middle">Gemini</text>
+      <rect x="628" y="590" width="46" height="22" rx="5" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="651" y="605" font-size="10" font-weight="500" fill="#16a34a" text-anchor="middle">Brave</text>
+      <rect x="682" y="590" width="40" height="22" rx="5" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="702" y="605" font-size="10" font-weight="500" fill="#16a34a" text-anchor="middle">DDG</text>
+
+      <line x1="345" y1="586" x2="418" y2="586" class="arrow-line" stroke="#22c55e" marker-end="url(#arrowhead-green)"/>
+      <text x="370" y="580" class="arrow-label" fill="#22c55e">LLM / search</text>
+    </svg>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#2563eb"></div> Core API / Compute</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#ef4444"></div> Redis (Queues + Relay + Cache)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#f97316"></div> Bundles / Workflows + S3</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#22c55e"></div> External Providers</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#a855f7"></div> Auth / Control Plane</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#14b8a6"></div> Knowledge Base</div>
+  </div>
+
+  <!-- Flow Steps -->
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Enqueue</h4>
+        <p>Gateway validates auth, enforces rate limits, and pushes the chat task into a priority Redis queue (privileged / registered / anonymous).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>Dequeue + Lock</h4>
+        <p>Processor workers <code>BRPOP</code> fairly across queues, acquire a per-task concurrency lock, and begin execution.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Execute Bundle</h4>
+        <p>The selected dynamic bundle runs: ReAct solver, tool calls, code execution, memory retrieval, and LLM inference.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <h4>Publish Events</h4>
+        <p>Bundle emits <code>chat_start</code>, <code>chat_delta</code>, <code>chat_step</code>, <code>chat_complete</code> events to the Redis Pub/Sub relay channel.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">5</div>
+      <div class="step-text">
+        <h4>Fan-out</h4>
+        <p>The relay forwards events to all API instances subscribed to the session channel.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">6</div>
+      <div class="step-text">
+        <h4>Stream to Client</h4>
+        <p>Gateway pushes events to the connected client via SSE or Socket.IO with role-based filtering.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ 2. AUTH FLOW ═══════════════════════ -->
+<section id="auth">
+<div class="container">
+  <div class="section-label">Deep Dive</div>
+  <div class="section-title">Authentication Flow</div>
+  <div class="section-desc">
+    Production uses cookie-only auth with infra exchange. The client never sees real tokens &mdash;
+    Nginx handles the ProxyLogin exchange and sets secure HTTP-only cookies.
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 900 340" width="900" height="340">
+      <!-- Participants -->
+      <rect x="40" y="20" width="120" height="44" class="node-rect" fill="#fff" stroke="#3b82f6"/>
+      <text x="100" y="46" class="node-label" fill="#1d4ed8">Client UI</text>
+
+      <rect x="240" y="20" width="120" height="44" class="node-rect" fill="#faf5ff" stroke="#a855f7"/>
+      <text x="300" y="46" class="node-label" fill="#7c3aed">ProxyLogin</text>
+
+      <rect x="440" y="20" width="130" height="44" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="505" y="46" class="node-label" fill="#1d4ed8">Nginx Proxy</text>
+
+      <rect x="660" y="20" width="140" height="44" class="node-rect" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <text x="730" y="46" class="node-label" fill="#1d4ed8">Chat API</text>
+
+      <!-- Lifelines -->
+      <line x1="100" y1="64" x2="100" y2="320" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="300" y1="64" x2="300" y2="320" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="505" y1="64" x2="505" y2="320" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="730" y1="64" x2="730" y2="320" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <!-- Step 1: login -->
+      <line x1="100" y1="95" x2="298" y2="95" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <circle cx="80" cy="95" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="80" y="96" class="step-num-text">1</text>
+      <text x="190" y="88" class="arrow-label">login (credentials + 2FA)</text>
+
+      <!-- Step 2: tokens -->
+      <line x1="300" y1="130" x2="503" y2="130" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <circle cx="280" cy="130" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="280" y="131" class="step-num-text">2</text>
+      <text x="390" y="123" class="arrow-label">access + id tokens</text>
+
+      <!-- Step 3: masked cookie -->
+      <line x1="505" y1="165" x2="102" y2="165" class="arrow-line" stroke="#3b82f6" marker-end="url(#arrowhead-blue)"/>
+      <circle cx="525" cy="165" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="525" y="166" class="step-num-text">3</text>
+      <text x="280" y="158" class="arrow-label">Set-Cookie: masked token (client-only)</text>
+
+      <!-- Step 4: requests with masked cookie -->
+      <line x1="100" y1="200" x2="503" y2="200" class="arrow-line" stroke="#9ca3af"/>
+      <circle cx="80" cy="200" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="80" y="201" class="step-num-text">4</text>
+      <text x="280" y="193" class="arrow-label">requests with masked cookie</text>
+
+      <!-- Step 5: exchange for real tokens -->
+      <line x1="505" y1="235" x2="302" y2="235" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <line x1="300" y1="245" x2="503" y2="245" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <circle cx="525" cy="235" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="525" y="236" class="step-num-text">5</text>
+      <text x="390" y="228" class="arrow-label">exchange masked → real tokens</text>
+
+      <!-- Step 6: forward with auth cookies -->
+      <line x1="505" y1="280" x2="728" y2="280" class="arrow-line" stroke="#2563eb" marker-end="url(#arrowhead-blue)"/>
+      <circle cx="485" cy="280" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="485" y="281" class="step-num-text">6</text>
+      <text x="610" y="273" class="arrow-label">__Secure-LATC, __Secure-LITC</text>
+
+      <!-- Step 7: resolve session -->
+      <rect x="680" y="298" width="100" height="22" rx="4" fill="#dbeafe"/>
+      <text x="730" y="313" font-size="10" font-weight="500" fill="#2563eb" text-anchor="middle">resolve session</text>
+    </svg>
+  </div>
+
+  <div class="info-box blue">
+    <div class="icon">&#x1f512;</div>
+    <div><strong>Security model:</strong> The client only ever holds a masked (non-real) cookie. Real access/id tokens are exchanged server-side by Nginx via ProxyLogin. The API accepts tokens from headers, cookies, SSE query params, or Socket.IO auth payload for backwards compatibility.</div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ 3. STREAMING ═══════════════════════ -->
+<section id="streaming">
+<div class="container">
+  <div class="section-label">Deep Dive</div>
+  <div class="section-title">Streaming &amp; Relay Architecture</div>
+  <div class="section-desc">
+    Both SSE and Socket.IO share the same Redis Pub/Sub relay, scoped per session.
+    The design achieves low fan-out cost with no global firehose, and full transport symmetry.
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 880 380" width="880" height="380">
+      <!-- Worker/Bundle -->
+      <rect x="30" y="140" width="150" height="60" class="node-rect" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+      <text x="105" y="165" class="node-label" fill="#ea580c">Bundle Worker</text>
+      <text x="105" y="181" class="node-sublabel">chat_* events</text>
+
+      <!-- ChatRelayCommunicator -->
+      <rect x="250" y="140" width="190" height="60" class="node-rect" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="345" y="160" class="node-label" fill="#dc2626" font-size="12">ChatRelay</text>
+      <text x="345" y="176" class="node-sublabel">Communicator</text>
+      <text x="345" y="190" class="node-sublabel">publish to session channel</text>
+
+      <!-- Redis -->
+      <ellipse cx="540" cy="155" rx="52" ry="12" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <rect x="488" y="155" width="104" height="36" fill="#fee2e2" stroke="none"/>
+      <line x1="488" y1="155" x2="488" y2="191" stroke="#ef4444" stroke-width="1.5"/>
+      <line x1="592" y1="155" x2="592" y2="191" stroke="#ef4444" stroke-width="1.5"/>
+      <ellipse cx="540" cy="191" rx="52" ry="12" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="540" y="178" class="node-label" fill="#dc2626" font-size="12">Redis Pub/Sub</text>
+
+      <!-- SSE Hub -->
+      <rect x="660" y="80" width="120" height="50" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="720" y="102" class="node-label" fill="#1d4ed8">SSE Hub</text>
+      <text x="720" y="118" class="node-sublabel">EventSource stream</text>
+
+      <!-- Socket.IO Handler -->
+      <rect x="660" y="200" width="120" height="50" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="720" y="222" class="node-label" fill="#1d4ed8">Socket.IO</text>
+      <text x="720" y="238" class="node-sublabel">WebSocket stream</text>
+
+      <!-- Client 1 -->
+      <rect x="830" y="62" width="40" height="30" rx="6" fill="#fff" stroke="#3b82f6"/>
+      <text x="850" y="82" font-size="16" text-anchor="middle">&#x1f4bb;</text>
+      <text x="850" y="104" font-size="10" fill="#6b7280" text-anchor="middle">Client A</text>
+
+      <!-- Client 2 -->
+      <rect x="830" y="200" width="40" height="30" rx="6" fill="#fff" stroke="#3b82f6"/>
+      <text x="850" y="220" font-size="16" text-anchor="middle">&#x1f4f1;</text>
+      <text x="850" y="242" font-size="10" fill="#6b7280" text-anchor="middle">Client B</text>
+
+      <!-- Arrows -->
+      <line x1="180" y1="170" x2="248" y2="170" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <line x1="440" y1="170" x2="486" y2="170" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <text x="456" y="162" class="arrow-label">pub</text>
+
+      <line x1="592" y1="168" x2="658" y2="110" class="arrow-line" stroke="#3b82f6" marker-end="url(#arrowhead-blue)"/>
+      <text x="618" y="128" class="arrow-label" fill="#3b82f6">sub</text>
+      <line x1="592" y1="180" x2="658" y2="220" class="arrow-line" stroke="#3b82f6" marker-end="url(#arrowhead-blue)"/>
+      <text x="610" y="210" class="arrow-label" fill="#3b82f6">sub</text>
+
+      <line x1="780" y1="105" x2="828" y2="82" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="780" y1="225" x2="828" y2="218" class="arrow-line" stroke="#9ca3af"/>
+
+      <!-- Event types -->
+      <rect x="30" y="260" width="840" height="100" rx="10" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="50" y="284" font-size="12" font-weight="600" fill="#374151">Event Types</text>
+
+      <rect x="50" y="298" width="90" height="24" rx="5" fill="#dbeafe"/>
+      <text x="95" y="314" font-size="11" font-weight="500" fill="#2563eb" text-anchor="middle">chat_start</text>
+
+      <rect x="152" y="298" width="86" height="24" rx="5" fill="#dcfce7"/>
+      <text x="195" y="314" font-size="11" font-weight="500" fill="#16a34a" text-anchor="middle">chat_delta</text>
+
+      <rect x="250" y="298" width="80" height="24" rx="5" fill="#fef9c3"/>
+      <text x="290" y="314" font-size="11" font-weight="500" fill="#a16207" text-anchor="middle">chat_step</text>
+
+      <rect x="342" y="298" width="104" height="24" rx="5" fill="#f3e8ff"/>
+      <text x="394" y="314" font-size="11" font-weight="500" fill="#7c3aed" text-anchor="middle">chat_complete</text>
+
+      <rect x="458" y="298" width="96" height="24" rx="5" fill="#ffedd5"/>
+      <text x="506" y="314" font-size="11" font-weight="500" fill="#ea580c" text-anchor="middle">chat_status</text>
+
+      <rect x="566" y="298" width="108" height="24" rx="5" fill="#fee2e2"/>
+      <text x="620" y="314" font-size="11" font-weight="500" fill="#dc2626" text-anchor="middle">chat_citations</text>
+
+      <rect x="686" y="298" width="94" height="24" rx="5" fill="#f0fdfa"/>
+      <text x="733" y="314" font-size="11" font-weight="500" fill="#0d9488" text-anchor="middle">chat_artifact</text>
+
+      <text x="50" y="348" font-size="11" fill="#6b7280">Events support role-based filtering: different user types see different event subsets. Each event carries metadata, timing, and optional cost envelope.</text>
+    </svg>
+  </div>
+
+  <div class="info-box green">
+    <div class="icon">&#x26a1;</div>
+    <div><strong>Transport symmetry:</strong> SSE and Socket.IO are fully interchangeable. The relay doesn't know which transport the client uses &mdash; it just publishes to the session channel, and the appropriate hub delivers events.</div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ 4. BUNDLES & RUNTIME ═══════════════════════ -->
+<section id="bundles">
+<div class="container">
+  <div class="section-label">Deep Dive</div>
+  <div class="section-title">Bundles &amp; Runtime</div>
+  <div class="section-desc">
+    Bundles are runtime-loadable agentic workflows. Each request selects a bundle, and
+    the bundle orchestrates ReAct solving, tool execution, code execution, and memory management.
+    Multiple bundles can coexist; one executes per request.
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 920 460" width="920" height="460">
+      <!-- Bundle Registry -->
+      <rect x="30" y="30" width="160" height="56" class="node-rect" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+      <text x="110" y="54" class="node-label" fill="#ea580c">Bundle Registry</text>
+      <text x="110" y="70" class="node-sublabel">Plugin loader + discovery</text>
+
+      <!-- Active Bundle -->
+      <rect x="260" y="14" width="400" height="86" class="node-rect" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+      <text x="460" y="40" class="node-label" fill="#ea580c" font-size="15">Active Bundle (Agentic Workflow)</text>
+      <text x="460" y="58" class="node-sublabel">LangGraph / LangChain / Custom Python</text>
+      <!-- badges -->
+      <rect x="280" y="70" width="66" height="18" rx="4" fill="#ffedd5"/>
+      <text x="313" y="82" font-size="10" font-weight="500" fill="#ea580c" text-anchor="middle">Entrypoint</text>
+      <rect x="354" y="70" width="78" height="18" rx="4" fill="#ffedd5"/>
+      <text x="393" y="82" font-size="10" font-weight="500" fill="#ea580c" text-anchor="middle">Endpoints</text>
+      <rect x="440" y="70" width="64" height="18" rx="4" fill="#ffedd5"/>
+      <text x="472" y="82" font-size="10" font-weight="500" fill="#ea580c" text-anchor="middle">Widgets</text>
+      <rect x="512" y="70" width="60" height="18" rx="4" fill="#ffedd5"/>
+      <text x="542" y="82" font-size="10" font-weight="500" fill="#ea580c" text-anchor="middle">Config</text>
+      <rect x="580" y="70" width="64" height="18" rx="4" fill="#ffedd5"/>
+      <text x="612" y="82" font-size="10" font-weight="500" fill="#ea580c" text-anchor="middle">Storage</text>
+
+      <!-- Arrow: Registry -> Bundle -->
+      <line x1="190" y1="58" x2="258" y2="58" class="arrow-line" stroke="#f97316" marker-end="url(#arrowhead-orange)"/>
+      <text x="216" y="50" class="arrow-label">load</text>
+
+      <!-- ─── ReAct Solver ─── -->
+      <rect x="260" y="140" width="180" height="60" class="node-rect" fill="#fef9c3" stroke="#eab308"/>
+      <text x="350" y="164" class="node-label" fill="#a16207">ReAct Solver</text>
+      <text x="350" y="180" class="node-sublabel">Planning + adaptive routing</text>
+
+      <!-- Arrow: Bundle -> ReAct -->
+      <line x1="400" y1="100" x2="370" y2="138" class="arrow-line" stroke="#9ca3af"/>
+
+      <!-- ─── Tool Subsystem ─── -->
+      <rect x="30" y="250" width="160" height="56" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="110" y="272" class="node-label" fill="#1d4ed8">Tool Subsystem</text>
+      <text x="110" y="288" class="node-sublabel">Local + MCP tools</text>
+
+      <!-- ─── Code Execution ─── -->
+      <rect x="220" y="250" width="160" height="56" class="node-rect" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="300" y="272" class="node-label" fill="#16a34a">Code Execution</text>
+      <text x="300" y="288" class="node-sublabel">Ephemeral Docker runtime</text>
+
+      <!-- ─── Memory / Context ─── -->
+      <rect x="410" y="250" width="160" height="56" class="node-rect" fill="#faf5ff" stroke="#a855f7"/>
+      <text x="490" y="272" class="node-label" fill="#7c3aed">Memory</text>
+      <text x="490" y="288" class="node-sublabel">Turn + conv + user memories</text>
+
+      <!-- ─── Skills Acquisition ─── -->
+      <rect x="600" y="250" width="160" height="56" class="node-rect" fill="#f0fdfa" stroke="#14b8a6"/>
+      <text x="680" y="272" class="node-label" fill="#0d9488">Skills</text>
+      <text x="680" y="288" class="node-sublabel">Web search, KB, citations</text>
+
+      <!-- Arrows from ReAct to subsystems -->
+      <line x1="300" y1="200" x2="130" y2="248" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="330" y1="200" x2="300" y2="248" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="380" y1="200" x2="470" y2="248" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="410" y1="200" x2="650" y2="248" class="arrow-line" stroke="#9ca3af"/>
+
+      <!-- ─── LLM Provider Hub ─── -->
+      <rect x="500" y="140" width="180" height="60" class="node-rect" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="590" y="164" class="node-label" fill="#16a34a">LLM Provider Hub</text>
+      <text x="590" y="180" class="node-sublabel">Anthropic / OpenAI / Gemini</text>
+
+      <!-- Arrow: ReAct -> LLM -->
+      <line x1="440" y1="170" x2="498" y2="170" class="arrow-line" stroke="#22c55e" marker-end="url(#arrowhead-green)"/>
+      <text x="462" y="162" class="arrow-label">inference</text>
+
+      <!-- ─── ChatCommunicator ─── -->
+      <rect x="730" y="140" width="160" height="60" class="node-rect" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="810" y="160" class="node-label" fill="#dc2626" font-size="12">ChatCommunicator</text>
+      <text x="810" y="178" class="node-sublabel">Channeled streamer</text>
+
+      <!-- Arrow: Bundle -> Communicator -->
+      <line x1="660" y1="58" x2="810" y2="138" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <text x="748" y="86" class="arrow-label">stream events</text>
+
+      <!-- ─── Context / Storage row ─── -->
+      <text x="30" y="352" font-size="12" font-weight="600" fill="#374151">Context &amp; Storage Layer</text>
+
+      <rect x="30" y="370" width="130" height="50" class="node-rect" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="95" y="392" class="node-label" fill="#1d4ed8" font-size="11">Postgres</text>
+      <text x="95" y="406" class="node-sublabel">Metadata + indexes</text>
+
+      <rect x="180" y="370" width="130" height="50" class="node-rect" fill="#ffedd5" stroke="#f97316"/>
+      <text x="245" y="392" class="node-label" fill="#ea580c" font-size="11">S3 / Storage</text>
+      <text x="245" y="406" class="node-sublabel">Artifacts + blobs</text>
+
+      <rect x="330" y="370" width="130" height="50" class="node-rect" fill="#fee2e2" stroke="#ef4444"/>
+      <text x="395" y="392" class="node-label" fill="#dc2626" font-size="11">Redis</text>
+      <text x="395" y="406" class="node-sublabel">Cache + counters</text>
+
+      <rect x="480" y="370" width="160" height="50" class="node-rect" fill="#f0fdfa" stroke="#14b8a6" stroke-dasharray="4 3"/>
+      <text x="560" y="392" class="node-label" fill="#0d9488" font-size="11">Neo4j (optional)</text>
+      <text x="560" y="406" class="node-sublabel">User assertion graph</text>
+
+      <!-- Arrows from subsystems to storage -->
+      <line x1="110" y1="306" x2="95" y2="368" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="300" y1="306" x2="245" y2="368" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="490" y1="306" x2="395" y2="368" class="arrow-line" stroke="#9ca3af"/>
+
+      <!-- Docker -->
+      <rect x="200" y="340" width="26" height="20" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+      <text x="213" y="354" font-size="11" text-anchor="middle">&#x1f433;</text>
+      <line x1="300" y1="306" x2="220" y2="340" class="arrow-line" stroke="#22c55e" marker-end="url(#arrowhead-green)"/>
+    </svg>
+  </div>
+
+  <!-- Flow Steps for Bundle execution -->
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Bundle Selection</h4>
+        <p>Each message specifies which bundle to use. The registry loads and caches the bundle's entrypoint, endpoints, and config.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>ReAct Planning</h4>
+        <p>The solver plans the approach: tool-first, code-first, or direct inference. It adaptively selects skills and tools.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Execution Loop</h4>
+        <p>Tools run locally or via MCP, code executes in ephemeral Docker containers, and memory is retrieved from Postgres/S3.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <h4>Event Streaming</h4>
+        <p>ChatCommunicator emits events through the channeled streamer with step boundaries, deltas, citations, and cost envelopes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ 5. STORAGE & DATA ═══════════════════════ -->
+<section id="storage">
+<div class="container">
+  <div class="section-label">Deep Dive</div>
+  <div class="section-title">Storage &amp; Data Model</div>
+  <div class="section-desc">
+    Multi-tenant storage with per-project schema isolation in Postgres, prefix-segmented S3,
+    and Redis for caching/messaging. Each tenant and project has complete data separation.
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 880 300" width="880" height="300">
+      <!-- Tenant boundary -->
+      <rect x="20" y="20" width="840" height="260" rx="14" fill="none" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="6 4"/>
+      <text x="40" y="46" font-size="12" font-weight="600" fill="#6b7280">Tenant: acme_corp</text>
+
+      <!-- Project A -->
+      <rect x="40" y="60" width="380" height="200" rx="10" fill="#f9fafb" stroke="#d1d5db"/>
+      <text x="60" y="84" font-size="11" font-weight="600" fill="#374151">Project: prod</text>
+
+      <!-- PG schema -->
+      <rect x="60" y="100" width="150" height="68" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="135" y="120" class="node-label" fill="#1d4ed8" font-size="11">PostgreSQL</text>
+      <text x="135" y="138" font-size="10" fill="#3b82f6" text-anchor="middle" font-family="JetBrains Mono">acme_prod schema</text>
+      <text x="135" y="155" font-size="9" fill="#6b7280" text-anchor="middle">conversations, turns,</text>
+      <text x="135" y="165" font-size="9" fill="#6b7280" text-anchor="middle">artifacts, memories</text>
+
+      <!-- S3 -->
+      <rect x="230" y="100" width="170" height="68" rx="8" fill="#ffedd5" stroke="#f97316"/>
+      <text x="315" y="120" class="node-label" fill="#ea580c" font-size="11">S3 Storage</text>
+      <text x="315" y="138" font-size="10" fill="#f97316" text-anchor="middle" font-family="JetBrains Mono">s3://bucket/acme/prod/</text>
+      <text x="315" y="155" font-size="9" fill="#6b7280" text-anchor="middle">attachments, generated</text>
+      <text x="315" y="165" font-size="9" fill="#6b7280" text-anchor="middle">files, KB artifacts</text>
+
+      <!-- Redis -->
+      <rect x="60" y="186" width="150" height="56" rx="8" fill="#fee2e2" stroke="#ef4444"/>
+      <text x="135" y="208" class="node-label" fill="#dc2626" font-size="11">Redis</text>
+      <text x="135" y="226" font-size="9" fill="#6b7280" text-anchor="middle">cache + queues + pub/sub</text>
+      <text x="135" y="236" font-size="9" fill="#6b7280" text-anchor="middle">rate-limit counters</text>
+
+      <!-- Neo4j -->
+      <rect x="230" y="186" width="170" height="56" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-dasharray="4 3"/>
+      <text x="315" y="208" class="node-label" fill="#0d9488" font-size="11">Neo4j (optional)</text>
+      <text x="315" y="226" font-size="9" fill="#6b7280" text-anchor="middle">user assertion graph</text>
+      <text x="315" y="236" font-size="9" fill="#6b7280" text-anchor="middle">confidence + TTL</text>
+
+      <!-- Project B -->
+      <rect x="460" y="60" width="380" height="200" rx="10" fill="#f9fafb" stroke="#d1d5db"/>
+      <text x="480" y="84" font-size="11" font-weight="600" fill="#374151">Project: dev</text>
+
+      <rect x="480" y="100" width="150" height="68" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="555" y="120" class="node-label" fill="#1d4ed8" font-size="11">PostgreSQL</text>
+      <text x="555" y="138" font-size="10" fill="#3b82f6" text-anchor="middle" font-family="JetBrains Mono">acme_dev schema</text>
+      <text x="555" y="155" font-size="9" fill="#6b7280" text-anchor="middle">separate schema,</text>
+      <text x="555" y="165" font-size="9" fill="#6b7280" text-anchor="middle">full isolation</text>
+
+      <rect x="650" y="100" width="170" height="68" rx="8" fill="#ffedd5" stroke="#f97316"/>
+      <text x="735" y="120" class="node-label" fill="#ea580c" font-size="11">S3 Storage</text>
+      <text x="735" y="138" font-size="10" fill="#f97316" text-anchor="middle" font-family="JetBrains Mono">s3://bucket/acme/dev/</text>
+      <text x="735" y="155" font-size="9" fill="#6b7280" text-anchor="middle">separate prefix,</text>
+      <text x="735" y="165" font-size="9" fill="#6b7280" text-anchor="middle">full isolation</text>
+
+      <!-- Shared control plane -->
+      <rect x="480" y="186" width="340" height="56" rx="8" fill="#f3e8ff" stroke="#a855f7"/>
+      <text x="650" y="208" class="node-label" fill="#7c3aed" font-size="11">Control Plane (shared)</text>
+      <text x="650" y="226" font-size="10" fill="#a855f7" text-anchor="middle" font-family="JetBrains Mono">kdcube_control_plane schema</text>
+      <text x="650" y="240" font-size="9" fill="#6b7280" text-anchor="middle">policies, quotas, budgets, top-ups across all projects</text>
+    </svg>
+  </div>
+
+  <!-- Data Models -->
+  <div class="data-models">
+    <div class="data-model">
+      <div class="data-model-header pg">PostgreSQL &mdash; Chat Schema</div>
+      <div class="data-model-body">
+        <div class="field"><span class="fname">conversation_id</span> <span><span class="fpk">PK</span> <span class="ftype">UUID</span></span></div>
+        <div class="field"><span class="fname">user_id</span> <span class="ftype">VARCHAR</span></div>
+        <div class="field"><span class="fname">project_id</span> <span class="ftype">VARCHAR</span></div>
+        <div class="field"><span class="fname">turn_id</span> <span class="ftype">UUID</span></div>
+        <div class="field"><span class="fname">message_content</span> <span class="ftype">JSONB</span></div>
+        <div class="field"><span class="fname">artifacts[]</span> <span class="ftype">JSONB</span></div>
+        <div class="field"><span class="fname">memories[]</span> <span class="ftype">JSONB</span></div>
+        <div class="field"><span class="fname">created_at</span> <span class="ftype">TIMESTAMP</span></div>
+      </div>
+    </div>
+
+    <div class="data-model">
+      <div class="data-model-header redis">Redis &mdash; Runtime</div>
+      <div class="data-model-body">
+        <div class="field"><span class="fname">queue:{user_type}</span> <span class="ftype">LIST</span></div>
+        <div class="field"><span class="fname">lock:{task_id}</span> <span class="ftype">STRING + TTL</span></div>
+        <div class="field"><span class="fname">relay:{session_id}</span> <span class="ftype">PUBSUB</span></div>
+        <div class="field"><span class="fname">rate:{user}:{window}</span> <span class="ftype">STRING + TTL</span></div>
+        <div class="field"><span class="fname">cache:{key}</span> <span class="ftype">STRING + TTL</span></div>
+        <div class="field"><span class="fname">instance:{id}:load</span> <span class="ftype">HASH</span></div>
+      </div>
+    </div>
+
+    <div class="data-model">
+      <div class="data-model-header s3">S3 &mdash; Artifacts</div>
+      <div class="data-model-body">
+        <div class="field"><span class="fname">/{tenant}/{project}/</span> <span class="ftype">PREFIX</span></div>
+        <div class="field"><span class="fname">&nbsp;&nbsp;attachments/</span> <span class="ftype">uploaded files</span></div>
+        <div class="field"><span class="fname">&nbsp;&nbsp;generated/</span> <span class="ftype">code outputs</span></div>
+        <div class="field"><span class="fname">&nbsp;&nbsp;kb/</span> <span class="ftype">KB documents</span></div>
+        <div class="field"><span class="fname">&nbsp;&nbsp;embeddings/</span> <span class="ftype">vector caches</span></div>
+      </div>
+    </div>
+
+    <div class="data-model">
+      <div class="data-model-header neo4j">Neo4j &mdash; User Memory (optional)</div>
+      <div class="data-model-body">
+        <div class="field"><span class="fname">(:User)</span> <span class="ftype">NODE</span></div>
+        <div class="field"><span class="fname">(:Conversation)</span> <span class="ftype">NODE</span></div>
+        <div class="field"><span class="fname">(:Assertion)</span> <span class="ftype">NODE + confidence</span></div>
+        <div class="field"><span class="fname">(:Exception)</span> <span class="ftype">NODE + TTL</span></div>
+        <div class="field"><span class="fname">[:HAS_ASSERTION]</span> <span class="ftype">RELATIONSHIP</span></div>
+        <div class="field"><span class="fname">[:SOURCED_FROM]</span> <span class="ftype">RELATIONSHIP</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ 6. ECONOMICS ═══════════════════════ -->
+<section id="economics">
+<div class="container">
+  <div class="section-label">Deep Dive</div>
+  <div class="section-title">Economics &amp; Rate Limiting</div>
+  <div class="section-desc">
+    Two-layer protection: gateway-level rate limits (requests/hour) and economics-level
+    tier-aware quotas (budgets, concurrency locks, per-user limits).
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 880 320" width="880" height="320">
+      <!-- Request -->
+      <rect x="30" y="130" width="110" height="50" class="node-rect" fill="#fff" stroke="#3b82f6"/>
+      <text x="85" y="160" class="node-label" fill="#1d4ed8">Request</text>
+
+      <!-- Gateway Rate Limit -->
+      <rect x="190" y="110" width="150" height="90" class="node-rect" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <text x="265" y="140" class="node-label" fill="#1d4ed8" font-size="13">Gateway</text>
+      <text x="265" y="158" class="node-sublabel">Rate limits (req/hour)</text>
+      <text x="265" y="172" class="node-sublabel">Backpressure</text>
+      <text x="265" y="186" class="node-sublabel">Circuit breakers</text>
+
+      <!-- Economics -->
+      <rect x="400" y="110" width="160" height="90" class="node-rect" fill="#fef9c3" stroke="#eab308" stroke-width="2"/>
+      <text x="480" y="140" class="node-label" fill="#a16207" font-size="13">Economics</text>
+      <text x="480" y="158" class="node-sublabel">Tier-aware quotas</text>
+      <text x="480" y="172" class="node-sublabel">Budget enforcement</text>
+      <text x="480" y="186" class="node-sublabel">Concurrency locks</text>
+
+      <!-- Workflow -->
+      <rect x="620" y="118" width="120" height="56" class="node-rect" fill="#fff7ed" stroke="#f97316"/>
+      <text x="680" y="142" class="node-label" fill="#ea580c">Workflow</text>
+      <text x="680" y="158" class="node-sublabel">Bundle execution</text>
+
+      <!-- Cost tracking -->
+      <rect x="620" y="220" width="120" height="56" class="node-rect" fill="#faf5ff" stroke="#a855f7"/>
+      <text x="680" y="242" class="node-label" fill="#7c3aed" font-size="12">Usage Tracker</text>
+      <text x="680" y="258" class="node-sublabel">Cost envelopes</text>
+
+      <!-- Control Plane -->
+      <rect x="400" y="240" width="160" height="56" class="node-rect" fill="#f3e8ff" stroke="#a855f7"/>
+      <text x="480" y="262" class="node-label" fill="#7c3aed" font-size="12">Control Plane</text>
+      <text x="480" y="278" class="node-sublabel">Policies + replenishments</text>
+
+      <!-- Postgres -->
+      <rect x="190" y="248" width="130" height="40" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="255" y="272" class="node-label" fill="#1d4ed8" font-size="11">Postgres</text>
+
+      <!-- Redis counters -->
+      <rect x="190" y="300" width="130" height="0" rx="0" fill="none" stroke="none"/>
+
+      <!-- Arrows -->
+      <line x1="140" y1="155" x2="188" y2="155" class="arrow-line" stroke="#9ca3af"/>
+      <circle cx="165" cy="155" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="165" y="156" class="step-num-text">1</text>
+
+      <line x1="340" y1="155" x2="398" y2="155" class="arrow-line" stroke="#9ca3af"/>
+      <circle cx="368" cy="155" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="368" y="156" class="step-num-text">2</text>
+      <text x="368" y="142" class="arrow-label">allowed?</text>
+
+      <line x1="560" y1="145" x2="618" y2="145" class="arrow-line" stroke="#f97316" marker-end="url(#arrowhead-orange)"/>
+      <circle cx="588" cy="145" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="588" y="146" class="step-num-text">3</text>
+      <text x="588" y="132" class="arrow-label">execute</text>
+
+      <line x1="680" y1="174" x2="680" y2="218" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <circle cx="680" cy="196" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="680" y="197" class="step-num-text">4</text>
+      <text x="698" y="196" class="arrow-label">track cost</text>
+
+      <line x1="620" y1="248" x2="562" y2="262" class="arrow-line" stroke="#a855f7" marker-end="url(#arrowhead)"/>
+      <circle cx="592" cy="254" r="10" class="step-circle" fill="#2563eb"/>
+      <text x="592" y="255" class="step-num-text">5</text>
+
+      <line x1="400" y1="268" x2="322" y2="268" class="arrow-line" stroke="#2563eb" marker-end="url(#arrowhead-blue)"/>
+
+      <!-- Rejected path -->
+      <text x="265" y="64" font-size="11" font-weight="500" fill="#dc2626" text-anchor="middle">429 Too Many Requests</text>
+      <path d="M 265 110 L 265 76" class="arrow-line" stroke="#ef4444" stroke-dasharray="4 3" marker-end="url(#arrowhead-red)"/>
+      <text x="480" y="98" font-size="11" font-weight="500" fill="#dc2626" text-anchor="middle">402 / 429 Quota Exceeded</text>
+      <path d="M 480 110 L 480 100" class="arrow-line" stroke="#ef4444" stroke-dasharray="4 3" fill="none"/>
+
+      <!-- User tiers -->
+      <rect x="30" y="30" width="110" height="66" rx="8" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="85" y="48" font-size="11" font-weight="600" fill="#374151" text-anchor="middle">User Tiers</text>
+      <text x="85" y="64" font-size="10" fill="#22c55e" text-anchor="middle">&#9679; privileged</text>
+      <text x="85" y="78" font-size="10" fill="#3b82f6" text-anchor="middle">&#9679; registered</text>
+      <text x="85" y="92" font-size="10" fill="#9ca3af" text-anchor="middle">&#9679; anonymous</text>
+    </svg>
+  </div>
+
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Gateway Check</h4>
+        <p>Request rate limits, backpressure (queue capacity), and circuit breakers are evaluated. Rejected requests get <code>429</code>.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>Economics Check</h4>
+        <p>Tier-aware quotas, budget limits, and concurrency locks are enforced. Over-budget users get <code>402</code> or <code>429</code>.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Execute</h4>
+        <p>Request proceeds to the workflow bundle for processing if both checks pass.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <h4>Track &amp; Update</h4>
+        <p>Usage/cost is tracked per-request and reported to the control plane for budget deduction and spending reports.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ 7. SCALING ═══════════════════════ -->
+<section id="scaling">
+<div class="container">
+  <div class="section-label">Deep Dive</div>
+  <div class="section-title">Horizontal Scaling</div>
+  <div class="section-desc">
+    The architecture supports horizontal scaling through stateless API instances and
+    independent processor workers, connected by Redis for coordination and relay.
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 880 280" width="880" height="280">
+      <!-- Load Balancer -->
+      <rect x="340" y="20" width="200" height="44" class="node-rect" fill="#f9fafb" stroke="#9ca3af"/>
+      <text x="440" y="46" class="node-label" fill="#374151">Load Balancer / Nginx</text>
+
+      <!-- API Instance 1 -->
+      <rect x="60" y="110" width="160" height="56" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="140" y="132" class="node-label" fill="#1d4ed8">API Instance 1</text>
+      <text x="140" y="148" class="node-sublabel">SSE Hub + REST + Gateway</text>
+
+      <!-- API Instance 2 -->
+      <rect x="260" y="110" width="160" height="56" class="node-rect" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="340" y="132" class="node-label" fill="#1d4ed8">API Instance 2</text>
+      <text x="340" y="148" class="node-sublabel">SSE Hub + REST + Gateway</text>
+
+      <!-- API Instance N -->
+      <rect x="460" y="110" width="160" height="56" class="node-rect" fill="#eff6ff" stroke="#3b82f6" stroke-dasharray="4 3"/>
+      <text x="540" y="132" class="node-label" fill="#1d4ed8">API Instance N</text>
+      <text x="540" y="148" class="node-sublabel">Stateless &mdash; scale out</text>
+
+      <!-- Arrows from LB -->
+      <line x1="380" y1="64" x2="170" y2="108" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="440" y1="64" x2="340" y2="108" class="arrow-line" stroke="#9ca3af"/>
+      <line x1="500" y1="64" x2="520" y2="108" class="arrow-line" stroke="#9ca3af"/>
+
+      <!-- Redis (center) -->
+      <ellipse cx="440" cy="210" rx="60" ry="14" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <rect x="380" y="210" width="120" height="40" fill="#fee2e2" stroke="none"/>
+      <line x1="380" y1="210" x2="380" y2="250" stroke="#ef4444" stroke-width="1.5"/>
+      <line x1="500" y1="210" x2="500" y2="250" stroke="#ef4444" stroke-width="1.5"/>
+      <ellipse cx="440" cy="250" rx="60" ry="14" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="440" y="234" class="node-label" fill="#dc2626" font-size="12">Redis</text>
+
+      <!-- Arrows from API to Redis -->
+      <line x1="140" y1="166" x2="390" y2="218" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <line x1="340" y1="166" x2="420" y2="208" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+      <line x1="540" y1="166" x2="480" y2="208" class="arrow-line" stroke="#ef4444" marker-end="url(#arrowhead-red)"/>
+
+      <!-- Workers -->
+      <rect x="660" y="110" width="90" height="44" class="node-rect" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="705" y="136" class="node-label" fill="#16a34a" font-size="11">Worker 1</text>
+
+      <rect x="660" y="166" width="90" height="44" class="node-rect" fill="#f0fdf4" stroke="#22c55e"/>
+      <text x="705" y="192" class="node-label" fill="#16a34a" font-size="11">Worker 2</text>
+
+      <rect x="660" y="222" width="90" height="44" class="node-rect" fill="#f0fdf4" stroke="#22c55e" stroke-dasharray="4 3"/>
+      <text x="705" y="248" class="node-label" fill="#16a34a" font-size="11">Worker N</text>
+
+      <text x="705" y="104" font-size="11" font-weight="600" fill="#374151" text-anchor="middle">Processors</text>
+
+      <!-- Arrows from Redis to Workers -->
+      <line x1="500" y1="226" x2="658" y2="136" class="arrow-line" stroke="#22c55e" marker-end="url(#arrowhead-green)"/>
+      <line x1="500" y1="234" x2="658" y2="192" class="arrow-line" stroke="#22c55e" marker-end="url(#arrowhead-green)"/>
+      <line x1="500" y1="244" x2="658" y2="244" class="arrow-line" stroke="#22c55e" marker-end="url(#arrowhead-green)"/>
+
+      <!-- Labels -->
+      <text x="580" y="162" class="arrow-label" fill="#22c55e">BRPOP (fair)</text>
+      <text x="300" y="200" class="arrow-label" fill="#ef4444">pub/sub + enqueue</text>
+
+      <!-- Instance load -->
+      <rect x="780" y="110" width="90" height="156" rx="8" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="825" y="132" font-size="10" font-weight="600" fill="#374151" text-anchor="middle">Load Tracking</text>
+      <text x="825" y="152" font-size="9" fill="#6b7280" text-anchor="middle">instance_id</text>
+      <text x="825" y="168" font-size="9" fill="#6b7280" text-anchor="middle">active_tasks</text>
+      <text x="825" y="184" font-size="9" fill="#6b7280" text-anchor="middle">max_concurrent</text>
+      <text x="825" y="200" font-size="9" fill="#6b7280" text-anchor="middle">queue_depth</text>
+      <text x="825" y="220" font-size="9" fill="#6b7280" text-anchor="middle">Stored in Redis</text>
+      <text x="825" y="234" font-size="9" fill="#6b7280" text-anchor="middle">per instance</text>
+    </svg>
+  </div>
+
+  <div class="info-box orange">
+    <div class="icon">&#x2699;</div>
+    <div><strong>Scaling model:</strong> API instances are stateless and scale behind a load balancer. Each maintains SSE/Socket.IO connections and subscribes to Redis relay channels. Processor workers are independent — they BRPOP fairly across priority queues and respect max-concurrent limits. Add more instances of either layer independently.</div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer style="background: var(--gray-900); color: var(--gray-400); padding: 32px 0; text-align: center; font-size: 13px;">
+  <div class="container">
+    KDCube AI App &mdash; System Architecture &bull; Self-hosted agentic platform + SDK
+    <br><span style="color: var(--gray-600);">Generated from architecture docs &bull; architecture-short.md, architecture-long.md</span>
+  </div>
+</footer>
+
+<!-- ─── Navigation highlight ─── -->
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.nav a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+
+  // Smooth scroll
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>

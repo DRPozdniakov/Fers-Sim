@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fers — Venture Due-Diligence Audit Report</title>
+<style>
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; font-size: 12px; padding: 20px; margin: 0; max-width: 1200px; margin: 0 auto; }
+.card { background: white; border: 2px solid #333; border-radius: 8px; padding: 25px; margin: 15px 0; }
+.big-number { font-size: 64px; font-weight: bold; color: #333; line-height: 1; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 4px; }
+h1 { font-size: 28px; font-weight: 700; color: #333; margin: 0 0 5px 0; }
+h2 { font-size: 20px; font-weight: 600; color: #333; margin: 20px 0 10px 0; border-bottom: 2px solid #333; padding-bottom: 5px; }
+h3 { font-size: 16px; font-weight: 600; color: #333; margin: 15px 0 8px 0; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
+.severity-critical { background: #f8d7da; color: #721c24; padding: 3px 8px; border-radius: 3px; font-weight: 600; font-size: 11px; }
+.severity-high { background: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 3px; font-weight: 600; font-size: 11px; }
+.severity-medium { background: #e2e3e5; color: #383d41; padding: 3px 8px; border-radius: 3px; font-weight: 600; font-size: 11px; }
+.severity-low { background: #f5f5f5; color: #666; padding: 3px 8px; border-radius: 3px; font-weight: 600; font-size: 11px; }
+.pass { color: #155724; }
+.fail { color: #721c24; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+th { background: #333; color: white; padding: 8px 10px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+tr:hover { background: #f9f9f9; }
+.bar-container { background: #eee; height: 20px; border-radius: 3px; overflow: hidden; margin: 3px 0; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-dark { background: #4a4a4a; }
+.bar-medium { background: #888; }
+.bar-light { background: #ccc; }
+.bar-success { background: #155724; }
+.bar-warning { background: #856404; }
+.bar-danger { background: #721c24; }
+.stat-box { text-align: center; padding: 15px; }
+.stat-box .big-number { font-size: 48px; }
+.finding-row td:first-child { width: 80px; }
+.improvement-number { display: inline-block; width: 24px; height: 24px; background: #333; color: white; border-radius: 50%; text-align: center; line-height: 24px; font-weight: bold; font-size: 11px; margin-right: 8px; }
+.tag { display: inline-block; background: #eee; color: #333; padding: 2px 8px; border-radius: 3px; font-size: 10px; margin: 1px 2px; }
+.meta-row { font-size: 11px; color: #666; margin-bottom: 15px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <h1>VENTURE DUE-DILIGENCE AUDIT</h1>
+      <div class="meta-row">Date: 2026-03-22 | Documents: 37 | Entities: 83 | Smart Core: Connected</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="label">Audit Score</div>
+      <div class="big-number">69</div>
+      <div style="font-size:24px; color:#999; font-weight:300;">/100</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEVERITY SUMMARY -->
+<div class="card">
+  <div class="grid-4">
+    <div class="stat-box">
+      <div class="label">Critical</div>
+      <div class="big-number" style="color:#721c24;">3</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">High</div>
+      <div class="big-number" style="color:#856404;">4</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Medium</div>
+      <div class="big-number" style="color:#383d41;">3</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Low</div>
+      <div class="big-number" style="color:#999;">2</div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY SCORES -->
+<div class="card">
+  <h2>Category Scores</h2>
+  <table>
+    <tr>
+      <th>Category</th>
+      <th>Score</th>
+      <th>Max</th>
+      <th style="width:40%;">Bar</th>
+      <th>Findings</th>
+    </tr>
+    <tr>
+      <td><strong>Financial Consistency</strong></td>
+      <td>20</td><td>25</td>
+      <td><div class="bar-container"><div class="bar-fill bar-warning" style="width:80%;"></div></div></td>
+      <td><span class="severity-critical">1 CRITICAL</span></td>
+    </tr>
+    <tr>
+      <td><strong>Timeline Consistency</strong></td>
+      <td>10</td><td>15</td>
+      <td><div class="bar-container"><div class="bar-fill bar-warning" style="width:67%;"></div></div></td>
+      <td><span class="severity-critical">1 CRITICAL</span></td>
+    </tr>
+    <tr>
+      <td><strong>Team & Equity</strong></td>
+      <td>4</td><td>10</td>
+      <td><div class="bar-container"><div class="bar-fill bar-danger" style="width:40%;"></div></div></td>
+      <td><span class="severity-high">3 HIGH</span></td>
+    </tr>
+    <tr>
+      <td><strong>Product Specifications</strong></td>
+      <td>5</td><td>5</td>
+      <td><div class="bar-container"><div class="bar-fill bar-success" style="width:100%;"></div></div></td>
+      <td><span class="pass">ALL PASS</span></td>
+    </tr>
+    <tr>
+      <td><strong>Market Data</strong></td>
+      <td>4</td><td>5</td>
+      <td><div class="bar-container"><div class="bar-fill bar-dark" style="width:80%;"></div></div></td>
+      <td><span class="severity-medium">1 MEDIUM</span></td>
+    </tr>
+    <tr>
+      <td><strong>Customer Economics</strong></td>
+      <td>5</td><td>5</td>
+      <td><div class="bar-container"><div class="bar-fill bar-success" style="width:100%;"></div></div></td>
+      <td><span class="pass">ALL PASS</span></td>
+    </tr>
+    <tr>
+      <td><strong>Metadata Quality</strong></td>
+      <td>2</td><td>5</td>
+      <td><div class="bar-container"><div class="bar-fill bar-danger" style="width:40%;"></div></div></td>
+      <td><span class="severity-medium">2 MEDIUM</span></td>
+    </tr>
+    <tr>
+      <td><strong>Confidential Check</strong></td>
+      <td>0</td><td>5</td>
+      <td><div class="bar-container"><div class="bar-fill bar-danger" style="width:0%;"></div></div></td>
+      <td><span class="severity-critical">1 CRITICAL</span></td>
+    </tr>
+    <tr>
+      <td><strong>Investor Readiness</strong></td>
+      <td>19</td><td>25</td>
+      <td><div class="bar-container"><div class="bar-fill bar-dark" style="width:76%;"></div></div></td>
+      <td><span class="severity-high">1 HIGH</span> <span class="severity-medium">2 MEDIUM</span></td>
+    </tr>
+  </table>
+</div>
+
+<!-- CRITICAL FINDINGS -->
+<div class="card" style="border-color:#721c24;">
+  <h2 style="color:#721c24; border-color:#721c24;">Critical Findings</h2>
+  <table>
+    <tr>
+      <th>ID</th><th>Category</th><th>Finding</th><th>File(s)</th><th>Action Required</th>
+    </tr>
+    <tr>
+      <td><span class="severity-critical">C1</span></td>
+      <td>Timeline</td>
+      <td><strong>Investor-QA says Seed = "18 months"</strong><br>Lines 281, 287: "18 months runway" and "€1M over 18 months". Seed is 10 months (Jul 2026 → Apr 2027). Investor will see conflicting runway claims.</td>
+      <td>Investor-QA.md</td>
+      <td>Change "18 months" → "10 months" on lines 281 and 287</td>
+    </tr>
+    <tr>
+      <td><span class="severity-critical">C2</span></td>
+      <td>Financial</td>
+      <td><strong>Investor-QA budget categories don't match Phase Plan</strong><br>IQA: 40% R&D €400K, 25% team €250K, 20% BD €200K, 15% ops €150K.<br>Phase Plan: 40% team €400K, 22% hardware €220K, 9% BD €90K, 12% ops €120K, 6% software €60K, 11% buffer €110K.<br>Categories, percentages, and amounts all differ.</td>
+      <td>Investor-QA.md</td>
+      <td>Rewrite Q6 to match Seed-Phase-Plan.md budget categories</td>
+    </tr>
+    <tr>
+      <td><span class="severity-critical">C3</span></td>
+      <td>Confidential</td>
+      <td><strong>Banned terms in investor-facing documents</strong><br>8 violations: "Foodly" (5x), "Sciurus17" (2x) in Competitive-Analysis.md and Round-A-Plan.md. These are confidential references that must not appear in investor documents.</td>
+      <td>Competitive-Analysis.md<br>Round-A-Plan.md<br>VC-Questions-CEO-Exercise.md</td>
+      <td>Replace "Foodly" with "Japan food robotics company" or similar. Replace "Sciurus17" with "reference dual-arm platform"</td>
+    </tr>
+  </table>
+</div>
+
+<!-- HIGH FINDINGS -->
+<div class="card" style="border-color:#856404;">
+  <h2 style="color:#856404; border-color:#856404;">High Findings</h2>
+  <table>
+    <tr>
+      <th>ID</th><th>Category</th><th>Finding</th><th>File(s)</th><th>Action</th>
+    </tr>
+    <tr>
+      <td><span class="severity-high">H1</span></td>
+      <td>Team</td>
+      <td><strong>Ghost CFO in YAML metadata</strong><br>Job-Automation-Potential-Sector-Analysis.md has <code>deputies: ["CFO"]</code> in YAML front matter. CFO role was eliminated.</td>
+      <td>Job-Automation-Potential-Sector-Analysis.md</td>
+      <td>Change to <code>deputies: ["CDO"]</code></td>
+    </tr>
+    <tr>
+      <td><span class="severity-high">H2</span></td>
+      <td>Team</td>
+      <td><strong>Owner listed as own deputy</strong><br>BRD-001 and Financial-Model have <code>deputies: [Role-CTO, Role-CEO]</code> but owner is Role-CEO. Owner cannot be their own deputy.</td>
+      <td>BRD-001-Fers-Business-Requirements.md<br>Financial-Model-Fers.md</td>
+      <td>Change deputies to <code>[Role-CDO, Role-CTO]</code></td>
+    </tr>
+    <tr>
+      <td><span class="severity-high">H3</span></td>
+      <td>Team</td>
+      <td><strong>Non-existent role in PRD deputies</strong><br>PRD-001 has <code>deputies: [Role-CPO, Role-LeadEngineer]</code>. Role-CPO doesn't exist in the team.</td>
+      <td>PRD-001-Fers-Humanoid-Robot.md</td>
+      <td>Change Role-CPO to Role-CDO</td>
+    </tr>
+    <tr>
+      <td><span class="severity-high">H4</span></td>
+      <td>Metadata</td>
+      <td><strong>Inconsistent YAML format in Investor-QA docs</strong><br>IQA-001 and IQA-RU-001 use <code>owner: "CEO"</code> instead of <code>owner: Role-CEO</code>. Deputies use <code>["CTO", "CEO"]</code> instead of <code>[Role-CTO, Role-CDO]</code>. Format differs from all other docs.</td>
+      <td>Investor-QA.md<br>Investor-QA-RU.md</td>
+      <td>Standardize to Role-X format matching other docs</td>
+    </tr>
+  </table>
+</div>
+
+<!-- MEDIUM & LOW FINDINGS -->
+<div class="card">
+  <h2>Medium & Low Findings</h2>
+  <table>
+    <tr>
+      <th>ID</th><th>Severity</th><th>Finding</th><th>File(s)</th><th>Action</th>
+    </tr>
+    <tr>
+      <td>M1</td>
+      <td><span class="severity-medium">MEDIUM</span></td>
+      <td><strong>Entity coverage: 31.4%</strong> — Only 408 of 1,298 values tracked as entities. Quarter references at 0%. Limits cross-document consistency verification.</td>
+      <td>All docs</td>
+      <td>Run entity extraction for high-value untracked values</td>
+    </tr>
+    <tr>
+      <td>M2</td>
+      <td><span class="severity-medium">MEDIUM</span></td>
+      <td><strong>Stale last_updated dates</strong> — 10+ docs were edited in March 2026 but last_updated still shows February 2026.</td>
+      <td>Multiple investor docs</td>
+      <td>Bump last_updated to 2026-03-22 for all edited docs</td>
+    </tr>
+    <tr>
+      <td>M3</td>
+      <td><span class="severity-medium">MEDIUM</span></td>
+      <td><strong>Stale research files</strong> — smart_core_research/ files reference Team-CFO and "8 months" Pre-Seed. Internal but could cause confusion.</td>
+      <td>entities-inventory.md<br>relationships-map.md</td>
+      <td>Re-run entity extraction to refresh research files</td>
+    </tr>
+    <tr>
+      <td>L1</td>
+      <td><span class="severity-low">LOW</span></td>
+      <td><strong>Missing deputies field</strong> — Extend-Robotics-Partnership-Brief.md has no deputies in YAML.</td>
+      <td>Extend-Robotics-Partnership-Brief.md</td>
+      <td>Add <code>deputies: [Role-CDO]</code></td>
+    </tr>
+    <tr>
+      <td>L2</td>
+      <td><span class="severity-low">LOW</span></td>
+      <td><strong>Stale graph nodes</strong> — Old document nodes with <code>..\docs_ver2\</code> paths from previous loads persist in Neo4j.</td>
+      <td>Neo4j graph</td>
+      <td>Run <code>load_project(force_reload=true)</code> after path cleanup</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ENTITY CONSISTENCY (Smart Core) -->
+<div class="card">
+  <h2>Entity Consistency (Smart Core)</h2>
+  <table>
+    <tr>
+      <th>Entity</th><th>Type</th><th>Value</th><th>Docs</th><th>Status</th>
+    </tr>
+    <tr>
+      <td>Round-Seed</td><td>FundingRound</td><td>€1,000,000</td><td>16</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Round-A</td><td>FundingRound</td><td>€7-10M</td><td>9</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Round-B</td><td>FundingRound</td><td>€50-100M</td><td>6</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Phase-PreSeed</td><td>Phase</td><td>5 months, €30-50K</td><td>8</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Phase-Seed</td><td>Phase</td><td>Jul 2026 → Apr 2027, 10 months</td><td>12</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Phase-RoundA</td><td>Phase</td><td>May 2027 → Sep 2028, 18 months</td><td>8</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Team-CTO</td><td>Team</td><td>Founder, 30% equity</td><td>4</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Team-CEO</td><td>Team</td><td>Active, Pre-Seed onboarded</td><td>6</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Team-CDO</td><td>Team</td><td>Chief Design Officer</td><td>7</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Team-CFO</td><td>Team</td><td>—</td><td>0</td>
+      <td><span class="pass">ELIMINATED</span></td>
+    </tr>
+    <tr>
+      <td>Prod-FersHumanoid</td><td>Product</td><td>€55K, upper-body humanoid</td><td>7</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Met-BOM</td><td>Metric</td><td>€27,500 COGS at scale</td><td>3</td>
+      <td><span class="pass">CONSISTENT</span></td>
+    </tr>
+    <tr>
+      <td>Met-TAM</td><td>Metric</td><td>€14.93B by 2034</td><td>2</td>
+      <td><span class="pass">CONSISTENT</span> <span class="severity-medium">LOW COVERAGE</span></td>
+    </tr>
+    <tr>
+      <td>Met-ARR</td><td>Metric</td><td>€120K/enterprise/year</td><td>1</td>
+      <td><span class="pass">CONSISTENT</span> <span class="severity-medium">LOW COVERAGE</span></td>
+    </tr>
+  </table>
+</div>
+
+<!-- CONFIDENTIAL INFO -->
+<div class="card" style="border-color:#721c24;">
+  <h2 style="color:#721c24; border-color:#721c24;">Confidential Information Violations</h2>
+  <table>
+    <tr><th>File</th><th>Term</th><th>Line</th><th>Context</th></tr>
+    <tr>
+      <td>Competitive-Analysis.md</td><td><span class="severity-critical">Foodly</span></td><td>357</td>
+      <td>RT Corporation (Foodly) | Japan | $3.8M...</td>
+    </tr>
+    <tr>
+      <td>Competitive-Analysis.md</td><td><span class="severity-critical">Foodly</span></td><td>360</td>
+      <td>RT Corporation / Foodly Deep Dive</td>
+    </tr>
+    <tr>
+      <td>Competitive-Analysis.md</td><td><span class="severity-critical">Sciurus17</span></td><td>361</td>
+      <td>Sciurus17-based platform for food production</td>
+    </tr>
+    <tr>
+      <td>Competitive-Analysis.md</td><td><span class="severity-critical">Foodly</span></td><td>595</td>
+      <td>RT Corp (Foodly) | Humanoid</td>
+    </tr>
+    <tr>
+      <td>Competitive-Analysis.md</td><td><span class="severity-critical">Foodly</span></td><td>616</td>
+      <td>Japan | RT Corp (Foodly), Connected Robotics</td>
+    </tr>
+    <tr>
+      <td>Round-A-Plan.md</td><td><span class="severity-critical">Sciurus17</span></td><td>99</td>
+      <td>Sciurus17: 17 DOF, Dynamixel servos...</td>
+    </tr>
+    <tr>
+      <td>VC-Questions-CEO-Exercise.md</td><td><span class="severity-high">Foodly</span></td><td>11, 56</td>
+      <td>RT Corporation / Foodly (internal exercise doc)</td>
+    </tr>
+  </table>
+</div>
+
+<!-- INVESTOR READINESS -->
+<div class="card">
+  <h2>Investor Readiness Assessment</h2>
+
+  <h3>Document Completeness (6/7)</h3>
+  <table>
+    <tr><th>Document</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Pitch Deck (Tracker)</td><td><span class="pass">EXISTS</span></td><td>All slides tracked, data aligned</td></tr>
+    <tr><td>Executive Summary</td><td><span class="pass">EXISTS</span></td><td>Compelling, correct length</td></tr>
+    <tr><td>Business Plan</td><td><span class="pass">EXISTS</span></td><td>Complete sections, well-structured</td></tr>
+    <tr><td>Financial Model</td><td><span class="pass">EXISTS</span></td><td>5-year projections, assumptions listed</td></tr>
+    <tr><td>PRD + BRD</td><td><span class="pass">EXISTS</span></td><td>Specs defined, phases clear</td></tr>
+    <tr><td>Competitive Analysis</td><td><span class="pass">EXISTS</span></td><td>Real competitors, differentiation table</td></tr>
+    <tr><td>TAM/SAM/SOM</td><td><span class="pass">EXISTS</span></td><td>Bottom-up SOM calculation</td></tr>
+    <tr><td>Customer Personas</td><td><span class="pass">EXISTS</span></td><td>3 segments validated</td></tr>
+    <tr><td>Phase Plans (Seed, A)</td><td><span class="pass">EXISTS</span></td><td>Monthly detail, budget breakdown</td></tr>
+    <tr><td>LOI / Customer Evidence</td><td><span class="severity-high">PIPELINE ONLY</span></td><td>Target list exists (80 UK companies) but no signed LOIs yet</td></tr>
+    <tr><td>Demo Video</td><td><span class="severity-medium">PLANNED</span></td><td>Referenced in Pre-Seed plan (M5), not yet produced</td></tr>
+    <tr><td>IP/Patent Strategy</td><td><span class="pass">REFERENCED</span></td><td>2 patents planned (UK + EPO) in Seed M6</td></tr>
+  </table>
+
+  <h3>Claim Strength Assessment</h3>
+  <table>
+    <tr><th>Claim</th><th>Strength</th><th>Evidence</th></tr>
+    <tr>
+      <td>Market size (€14.93B TAM)</td>
+      <td><span class="pass">STRONG</span></td>
+      <td>Published sources cited, calculation shown in TAM-SAM-SOM</td>
+    </tr>
+    <tr>
+      <td>Revenue projections</td>
+      <td><span class="pass">STRONG</span></td>
+      <td>Bottom-up from unit economics, conservative scenarios shown</td>
+    </tr>
+    <tr>
+      <td>Competitive advantage</td>
+      <td><span class="pass">STRONG</span></td>
+      <td>Named competitors, differentiation matrix, 0% food humanoid overlap</td>
+    </tr>
+    <tr>
+      <td>Customer demand</td>
+      <td><span class="severity-high">NEEDS WORK</span></td>
+      <td>80 target companies listed, pilot criteria defined, but no signed LOIs or customer quotes yet</td>
+    </tr>
+    <tr>
+      <td>Team capability</td>
+      <td><span class="severity-high">NEEDS WORK</span></td>
+      <td>Roles defined, CTO active. But limited track record / relevant experience detail shown in docs</td>
+    </tr>
+    <tr>
+      <td>Technology feasibility</td>
+      <td><span class="pass">STRONG</span></td>
+      <td>Open-source validation (Atom01, Sciurus17), BOM benchmark, Isaac Sim planned</td>
+    </tr>
+    <tr>
+      <td>ROI claims</td>
+      <td><span class="pass">STRONG</span></td>
+      <td>Full calculation with inputs visible, 3 customer segments, payback periods</td>
+    </tr>
+    <tr>
+      <td>Exit comparables</td>
+      <td><span class="pass">STRONG</span></td>
+      <td>Named companies (Miso, Bear Robotics, Serve Robotics) with actual valuations</td>
+    </tr>
+  </table>
+
+  <h3>VC Objection Coverage (9/10)</h3>
+  <table>
+    <tr><th>Objection</th><th>Status</th><th>Where Addressed</th></tr>
+    <tr><td>"Why now?"</td><td><span class="pass">COVERED</span></td><td>Exec Summary, Business Plan §2.2</td></tr>
+    <tr><td>"Why this team?"</td><td><span class="severity-high">PARTIAL</span></td><td>Roles listed but limited experience detail</td></tr>
+    <tr><td>"What's the moat?"</td><td><span class="pass">COVERED</span></td><td>Competitive Analysis, Business Plan §3.4</td></tr>
+    <tr><td>"First 10 customers?"</td><td><span class="pass">COVERED</span></td><td>Business Plan GTM, Pilot Customer Targets (80 companies)</td></tr>
+    <tr><td>"Big player enters?"</td><td><span class="pass">COVERED</span></td><td>Competitive Analysis threats + mitigations</td></tr>
+    <tr><td>"Why not RaaS?"</td><td><span class="pass">COVERED</span></td><td>Investor QA Q2, Business Plan §6</td></tr>
+    <tr><td>"Unit economics?"</td><td><span class="pass">COVERED</span></td><td>Financial Model §6, Exec Summary</td></tr>
+    <tr><td>"Scale manufacturing?"</td><td><span class="pass">COVERED</span></td><td>Business Plan §8, Round A Plan §3</td></tr>
+    <tr><td>"Regulatory path?"</td><td><span class="pass">COVERED</span></td><td>Round A Plan §7, PRD §7</td></tr>
+    <tr><td>"Tech doesn't work?"</td><td><span class="pass">COVERED</span></td><td>Risk sections in BP, Phase Plans</td></tr>
+  </table>
+</div>
+
+<!-- TOP IMPROVEMENTS -->
+<div class="card" style="border-color:#333; border-width:3px;">
+  <h2>Top Improvements (Priority Order)</h2>
+  <table>
+    <tr><th>#</th><th>Priority</th><th>What's Wrong</th><th>Where to Fix</th><th>Action</th></tr>
+    <tr>
+      <td><span class="improvement-number">1</span></td>
+      <td><span class="severity-critical">CRITICAL</span></td>
+      <td>Investor-QA says "18 months" and wrong budget split for Seed</td>
+      <td>Investor-QA.md lines 281, 287-294</td>
+      <td>Rewrite Q6 entirely: 10 months, match Phase Plan categories</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">2</span></td>
+      <td><span class="severity-critical">CRITICAL</span></td>
+      <td>"Foodly" and "Sciurus17" in investor-facing docs</td>
+      <td>Competitive-Analysis.md, Round-A-Plan.md</td>
+      <td>Replace with generic descriptions before any distribution</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">3</span></td>
+      <td><span class="severity-high">HIGH</span></td>
+      <td>YAML metadata inconsistencies (ghost CFO, self-deputy, non-existent roles)</td>
+      <td>Job-Automation.md, BRD-001, FM-001, PRD-001, IQA docs</td>
+      <td>Standardize all YAML to Role-X format, fix deputies</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">4</span></td>
+      <td><span class="severity-high">HIGH</span></td>
+      <td>No customer evidence beyond pipeline list</td>
+      <td>Exec Summary, Business Plan</td>
+      <td>Secure 1-2 LOIs during Pre-Seed; add customer quotes when available</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">5</span></td>
+      <td><span class="severity-high">HIGH</span></td>
+      <td>Limited team track record in docs</td>
+      <td>Exec Summary §Team, Business Plan §9</td>
+      <td>Add CTO relevant experience, technical background, domain expertise</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">6</span></td>
+      <td><span class="severity-medium">MEDIUM</span></td>
+      <td>Entity coverage at 31% — limits automated consistency checks</td>
+      <td>Smart Core graph</td>
+      <td>Run entity extraction for remaining high-value docs</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">7</span></td>
+      <td><span class="severity-medium">MEDIUM</span></td>
+      <td>Stale last_updated dates (Feb 2026 on March-edited docs)</td>
+      <td>All recently edited docs</td>
+      <td>Bump last_updated dates during next edit pass</td>
+    </tr>
+    <tr>
+      <td><span class="improvement-number">8</span></td>
+      <td><span class="severity-low">LOW</span></td>
+      <td>Demo video not yet produced</td>
+      <td>Pre-Seed Plan M5</td>
+      <td>Track in roadmap; critical for Seed pitch</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SMART CORE COVERAGE -->
+<div class="card">
+  <h2>Smart Core Coverage</h2>
+  <div class="grid-3">
+    <div class="stat-box">
+      <div class="label">Entities Tracked</div>
+      <div class="big-number" style="font-size:36px;">83</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Entity-Doc Links</div>
+      <div class="big-number" style="font-size:36px;">156</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Overall Coverage</div>
+      <div class="big-number" style="font-size:36px;">31%</div>
+    </div>
+  </div>
+  <h3>Coverage by Category</h3>
+  <table>
+    <tr><th>Category</th><th>Tracked</th><th>Total</th><th>Coverage</th><th>Bar</th></tr>
+    <tr>
+      <td>Percentages</td><td>155</td><td>366</td><td>42.3%</td>
+      <td><div class="bar-container"><div class="bar-fill bar-warning" style="width:42%;"></div></div></td>
+    </tr>
+    <tr>
+      <td>Durations</td><td>33</td><td>82</td><td>40.2%</td>
+      <td><div class="bar-container"><div class="bar-fill bar-warning" style="width:40%;"></div></div></td>
+    </tr>
+    <tr>
+      <td>Funding/Amounts</td><td>220</td><td>818</td><td>26.9%</td>
+      <td><div class="bar-container"><div class="bar-fill bar-danger" style="width:27%;"></div></div></td>
+    </tr>
+    <tr>
+      <td>Quarter References</td><td>0</td><td>32</td><td>0%</td>
+      <td><div class="bar-container"><div class="bar-fill bar-danger" style="width:0%;"></div></div></td>
+    </tr>
+  </table>
+  <h3>Audit Method Breakdown</h3>
+  <table>
+    <tr><th>Check Type</th><th>Method</th><th>Findings Found</th></tr>
+    <tr><td>Entity cross-references (funding, phases, team, product)</td><td>Smart Core graph</td><td>0 mismatches (all consistent)</td></tr>
+    <tr><td>Banned term scanning</td><td>Smart Core check_banned_terms</td><td>8 violations in 3 files</td></tr>
+    <tr><td>Entity coverage analysis</td><td>Smart Core audit_coverage</td><td>31.4% coverage identified</td></tr>
+    <tr><td>Ghost role detection (CFO text)</td><td>Grep</td><td>1 YAML violation + stale research files</td></tr>
+    <tr><td>Timeline text mismatches (18 months in IQA)</td><td>Grep</td><td>2 critical mismatches</td></tr>
+    <tr><td>YAML metadata validation</td><td>Bash + Grep</td><td>4 metadata issues</td></tr>
+    <tr><td>Budget math verification</td><td>File reads</td><td>1 critical (IQA categories wrong)</td></tr>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<div class="card" style="background:#333; color:white; border-color:#333;">
+  <div class="grid-2">
+    <div>
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#999;">Generated by</div>
+      <div style="font-size:14px; margin-top:4px;">Smart Core Audit Pipeline v1.0</div>
+      <div style="font-size:11px; color:#999; margin-top:4px;">Neo4j graph + grep + file reads | 37 documents scanned</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#999;">Fers | Confidential</div>
+      <div style="font-size:14px; margin-top:4px;">2026-03-22</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

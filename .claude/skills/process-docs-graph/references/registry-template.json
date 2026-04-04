@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "project": "",
+    "last_updated": "",
+    "total_documents": 0,
+    "schema_version": "1.0"
+  },
+  "documents": [],
+  "dependency_graph": {
+    "phases": [
+      { "id": "phase-1", "name": "Research & Market", "order": 1, "documents": [] },
+      { "id": "phase-2", "name": "Product Definition", "order": 2, "documents": [] },
+      { "id": "phase-3", "name": "Business Strategy", "order": 3, "documents": [] },
+      { "id": "phase-4", "name": "Financial Model", "order": 4, "documents": [] },
+      { "id": "phase-5", "name": "Fundraising Materials", "order": 5, "documents": [] }
+    ],
+    "edges": []
+  },
+  "version_history": []
+}

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_playwright_playwright__*",
+      "WebFetch(domain:*)",
+      "WebSearch",
+      "Bash(dir:*)",
+      "mcp__smart-core__*",
+      "Bash(timeout 5 python:*)",
+      "Bash(python:*)",
+      "Task",
+      "Bash(DB_URI=\"neo4j://127.0.0.1:7687\" DB_USER=\"neo4j\" DB_PASSWORD=\"65433456\" DB_NAME=\"smart-core\" timeout 5 python:*)",
+      "Bash(DB_URI=\"bolt://127.0.0.1:7687\" DB_USER=\"neo4j\" DB_PASSWORD=\"65433456\" DB_NAME=\"smart-core\" timeout 10 python:*)",
+      "WebFetch(domain:docs.isaacsim.omniverse.nvidia.com)",
+      "WebFetch(*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "smart-core"
+  ]
+}
