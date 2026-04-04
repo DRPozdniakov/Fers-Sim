@@ -485,6 +485,29 @@ echo ""
 echo "=== NVIDIA GL libs ===" && (ldconfig -p | grep -c "nvidia" && echo "NVIDIA libs found" || echo "WARNING: No NVIDIA libs in ldconfig")
 EOF
 
+    # start.sh — simple desktop launcher (run from Moonlight terminal)
+    cat > "$ISAAC_HOME/start.sh" << 'EOF'
+#!/bin/bash
+xhost +local:docker 2>/dev/null
+docker rm -f isaac-sim-gui 2>/dev/null
+echo "Starting Isaac Sim GUI... (first launch takes 10-15 min)"
+docker run --name isaac-sim-gui \
+    --entrypoint bash -it --gpus all -u 0:0 \
+    -e "ACCEPT_EULA=Y" -e "PRIVACY_CONSENT=Y" \
+    -e "NVIDIA_VISIBLE_DEVICES=all" \
+    -e "NVIDIA_DRIVER_CAPABILITIES=graphics,compute,utility" \
+    -e "DISPLAY=:0" \
+    --rm --network=host \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v ~/docker/isaac-sim/cache/main:/isaac-sim/.cache:rw \
+    -v ~/docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw \
+    -v ~/docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw \
+    -v ~/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw \
+    -v ~/docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw \
+    nvcr.io/nvidia/isaac-sim:5.1.0 \
+    -c "./runapp.sh"
+EOF
+
     chmod +x "$ISAAC_HOME"/*.sh
     chown -R "$VM_USER":"$VM_USER" "$ISAAC_HOME"
     chown -R "$VM_USER":"$VM_USER" "$VM_HOME/docker"
