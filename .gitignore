@@ -9,9 +9,5 @@ Thumbs.db
 # Personal documents - ILR application
 ilr/
 
-# Large CAD/mesh binaries (use Git LFS or share separately)
-cad/*.fbx
-cad/*.stl
-cad/*.fbm/
-cad/*.usd
-cad/meshes/
+# CAD / robot model (proprietary)
+cad/
