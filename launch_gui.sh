@@ -13,4 +13,5 @@ docker run --gpus all \
     -v ~/docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw \
     -v ~/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw \
     -v ~/docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw \
+    -v ~/Desktop/simulation:/isaac-sim/simulation:ro \
     nvcr.io/nvidia/isaac-sim:5.1.0

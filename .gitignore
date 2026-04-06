@@ -11,3 +11,8 @@ ilr/
 
 # CAD / robot model (proprietary)
 cad/
+simulation/*.urdf
+simulation/*.fbx
+simulation/*.stl
+simulation/meshes/
+simulation/cad/

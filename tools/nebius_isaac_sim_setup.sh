@@ -25,7 +25,7 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 
 ISAAC_SIM_VERSION="5.1.0"
 ISAAC_SIM_IMAGE="nvcr.io/nvidia/isaac-sim:${ISAAC_SIM_VERSION}"
-VM_USER="latoff"
+VM_USER="${ISAAC_USER:-$(logname 2>/dev/null || echo "${SUDO_USER:-latoff}")}"
 VM_HOME="/home/$VM_USER"
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"; }
@@ -280,6 +280,7 @@ docker run --name isaac-sim-gui --gpus all \
     -v ~/docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw \
     -v ~/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw \
     -v ~/docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw \
+    -v ~/simulation:/isaac-sim/simulation:ro \
     nvcr.io/nvidia/isaac-sim:5.1.0
 EOF
 
@@ -290,7 +291,7 @@ PUBLIC_IP=$(curl -s ifconfig.me)
 echo "=== Isaac Sim 5.1.0 WebRTC Streaming ==="
 echo ""
 echo "On your LOCAL machine, run:"
-echo "  ssh -N -f -L 49100:localhost:49100 -L 8211:localhost:8211 latoff@$PUBLIC_IP"
+echo "  ssh -N -f -L 49100:localhost:49100 -L 8211:localhost:8211 \$USER@$PUBLIC_IP"
 echo ""
 echo "Then open Chrome/Edge:"
 echo "  http://127.0.0.1:8211/streaming/webrtc-client/?server=127.0.0.1"
