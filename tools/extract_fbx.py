@@ -14,9 +14,9 @@ import struct
 import numpy as np
 import assimp_py
 
-FBX_PATH = os.path.join(os.path.dirname(__file__), "..", "cad", "fers_fbx_01.fbx")
-OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "cad", "meshes")
-URDF_PATH = os.path.join(os.path.dirname(__file__), "..", "cad", "fers_robot.urdf")
+FBX_PATH = os.path.join(os.path.dirname(__file__), "..", "simulation", "cad", "fers_fbx_02_Tpose.fbx")
+OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "simulation", "meshes")
+URDF_PATH = os.path.join(os.path.dirname(__file__), "..", "simulation", "fers_robot.urdf")
 
 SCALE = 0.001  # mm to meters
 

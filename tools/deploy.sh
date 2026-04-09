@@ -25,7 +25,7 @@ if [ -z "${1:-}" ]; then
     echo ""
     echo "Full workflow:"
     echo "  bash tools/deploy.sh <IP>              # ~20-30 min"
-    echo "  ssh latoff@<IP> 'sudo reboot'          # wait ~60s"
+    echo "  ssh <user>@<IP> 'sudo reboot'           # wait ~60s"
     echo "  bash tools/deploy.sh <IP> --phase2     # ~5 min"
     echo "  bash tools/connect.sh <IP> --sunshine   # connect Moonlight"
     exit 1
@@ -33,15 +33,26 @@ fi
 
 IP="$1"
 CMD="${2:-full}"
-USER="latoff"
 SCRIPT="nebius_isaac_sim_setup.sh"
 SCRIPT_PATH="tools/$SCRIPT"
 
-ssh_cmd() { ssh -o StrictHostKeyChecking=no "$USER@$IP" "$@"; }
+# Auto-detect user and SSH key based on IP
+case "$IP" in
+    216.81.245.44) USER="shadeform"; SSH_KEY="$HOME/.ssh/KGXB" ;;
+    *)             USER="latoff";    SSH_KEY="" ;;
+esac
+
+SSH_OPTS="-o StrictHostKeyChecking=no"
+[ -n "$SSH_KEY" ] && SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
+
+ssh_cmd() { ssh $SSH_OPTS "$USER@$IP" "$@"; }
+scp_cmd() { scp $SSH_OPTS "$@"; }
 
 upload() {
     echo "=== Uploading setup script ==="
-    scp -o StrictHostKeyChecking=no "$SCRIPT_PATH" "$USER@$IP:~/$SCRIPT"
+    scp_cmd "$SCRIPT_PATH" "$USER@$IP:~/$SCRIPT"
+    echo "=== Uploading simulation folder ==="
+    scp_cmd -r simulation "$USER@$IP:~/"
     echo "Uploaded."
 }
 

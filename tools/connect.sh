@@ -29,7 +29,11 @@ if [ -z "${1:-}" ]; then
     exit 1
 fi
 
-USER="latoff"
+# Auto-detect user and SSH key based on IP
+case "${1:-}" in
+    216.81.245.44) USER="shadeform"; SSH_KEY="-i /c/Users/drpoz/.ssh/KGXB" ;;
+    *)             USER="latoff";    SSH_KEY="" ;;
+esac
 
 # --kill mode (no IP needed)
 if [[ "$1" == "--kill" ]]; then
@@ -55,7 +59,7 @@ case "$MODE" in
         echo "Step 6: Open terminal → ~/isaac-sim/start.sh"
         echo ""
         echo "Press Ctrl+C to close tunnel."
-        ssh -o StrictHostKeyChecking=no \
+        ssh -o StrictHostKeyChecking=no $SSH_KEY \
             -L 47990:localhost:47990 \
             -L 47989:localhost:47989 \
             -L 47984:localhost:47984 \
@@ -72,7 +76,7 @@ case "$MODE" in
         echo "  http://127.0.0.1:8211/streaming/webrtc-client/?server=127.0.0.1"
         echo ""
         echo "Press Ctrl+C to close tunnels."
-        ssh -o StrictHostKeyChecking=no -N \
+        ssh -o StrictHostKeyChecking=no $SSH_KEY -N \
             -L 49100:localhost:49100 \
             -L 8211:localhost:8211 \
             "$USER@$IP"

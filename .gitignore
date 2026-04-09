@@ -16,3 +16,4 @@ simulation/*.fbx
 simulation/*.stl
 simulation/meshes/
 simulation/cad/
+simulation/scene/
