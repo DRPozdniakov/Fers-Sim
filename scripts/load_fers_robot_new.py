@@ -109,16 +109,38 @@ def setup_physics(robot_path):
 
     # ── Carter-matched rigid body settings ────────────────────────────────────
     px_rb = PhysxSchema.PhysxRigidBodyAPI.Apply(bl)
-    px_rb.GetAngularDampingAttr().Set(0.05)
-    px_rb.GetLinearDampingAttr().Set(0.0)
-    px_rb.GetLockedRotAxisAttr().Set(0)        # no lock — physical stability
+    px_rb.GetAngularDampingAttr().Set(200.0)    # very high — kills yaw wobble dead
+    px_rb.GetLinearDampingAttr().Set(0.5)      # slight — damps vertical/lateral jitter
+    px_rb.GetLockedRotAxisAttr().Set(3)        # lock X+Y (roll+pitch) — only yaw free
     px_rb.GetDisableGravityAttr().Set(False)
+    px_rb.GetSolverPositionIterationCountAttr().Set(32)  # more stable contacts
+    px_rb.GetSolverVelocityIterationCountAttr().Set(16)
     bl.CreateAttribute("physxRigidBody:cfmScale", Sdf.ValueTypeNames.Float, True).Set(0.025)
-    print(f"[FERS] base_link: angDamp=0.05  linDamp=0  lockedRot=0  cfmScale=0.025")
+    print(f"[FERS] base_link: angDamp=200  linDamp=0.5  lockedRot=3  solver=32/16")
 
-    # ── Cylinder wheel collisions (Carter/EvoBOT approach) ────────────────────
+    # ── Disable ALL original mesh collisions on wheels ──────────────────────────
+    # URDF import creates mesh-based collisions that conflict with our cylinders.
+    # Two shapes on the same wheel = unpredictable friction = robot wobbles.
     for side in ("left", "right"):
-        # Remove old sphere if present
+        for link_name in (f"{side}_wheel", f"{side}_wheel_cover"):
+            link = stage.GetPrimAtPath(f"{robot_path}/{link_name}")
+            if not link.IsValid():
+                continue
+            # Disable on the link prim itself
+            if link.HasAPI(UsdPhysics.CollisionAPI):
+                UsdPhysics.CollisionAPI(link).GetCollisionEnabledAttr().Set(False)
+            # Disable on all children (visual meshes, collision meshes)
+            for child in link.GetChildren():
+                if child.HasAPI(UsdPhysics.CollisionAPI):
+                    UsdPhysics.CollisionAPI(child).GetCollisionEnabledAttr().Set(False)
+                for gc in child.GetChildren():
+                    if gc.HasAPI(UsdPhysics.CollisionAPI):
+                        UsdPhysics.CollisionAPI(gc).GetCollisionEnabledAttr().Set(False)
+    print(f"[FERS] Disabled ALL original mesh collisions on wheels")
+
+    # ── Cylinder wheel collisions (clean shapes only) ────────────────────────
+    for side in ("left", "right"):
+        # Remove old added shapes
         for old in (f"{robot_path}/{side}_wheel/wheel_sphere",
                     f"{robot_path}/{side}_wheel/wheel_cylinder"):
             if stage.GetPrimAtPath(old).IsValid():
@@ -140,87 +162,116 @@ def setup_physics(robot_path):
         mat.GetRestitutionAttr().Set(0.0)
     print(f"[FERS] Cylinder wheels: axis=X  r={WHEEL_RADIUS}  w={WHEEL_WIDTH}  friction=1.0/0.8")
 
-    # ── Wheel drives: Carter-matched damping ──────────────────────────────────
+    # ── Wheel joint localPos0 fix + drives ───────────────────────────────────
+    LOCAL_POS0_Z = -0.4116
     for jname in ("left_wheel_joint", "right_wheel_joint"):
         j = stage.GetPrimAtPath(f"{robot_path}/joints/{jname}")
         if j.IsValid():
+            lp = j.GetAttribute("physics:localPos0")
+            old = lp.Get()
+            lp.Set(Gf.Vec3f(old[0], old[1], LOCAL_POS0_Z))
             drv = UsdPhysics.DriveAPI.Apply(j, "angular")
             drv.GetStiffnessAttr().Set(0.0)
-            drv.GetDampingAttr().Set(17453.0)   # Carter: 17,453 Nm·s/rad
+            drv.GetDampingAttr().Set(17453.0)
             drv.GetMaxForceAttr().Set(1e7)
-    print(f"[FERS] Wheel drives: damping=17453 Nm·s/rad  maxForce=unlimited")
+    print(f"[FERS] Wheel joints: localPos0 Z={LOCAL_POS0_Z}, damping=17453")
 
-    # ── Rear caster wheel (Carter-style: swivel + axle) ───────────────────────
-    # Provides 3-point stability — no lockedRotAxis needed
-    # In /fers_robot local space: wheel centers at z=0.082
-    PIVOT_POS = Gf.Vec3d(0, -0.30, 0.15)
-    WHEEL_POS = Gf.Vec3d(0, -0.35, 0.082)
+    # ── Clean up old caster prims (from previous script versions) ──────────────
+    for old_path in (f"{robot_path}/rear_caster_pivot",
+                     f"{robot_path}/rear_caster_wheel",
+                     f"{robot_path}/rear_swivel_joint",
+                     f"{robot_path}/rear_axle_joint"):
+        if stage.GetPrimAtPath(old_path).IsValid():
+            stage.RemovePrim(old_path)
+            print(f"[FERS] Removed old prim: {old_path}")
 
-    # Pivot link (swivel bracket)
-    piv_path = f"{robot_path}/rear_caster_pivot"
-    if stage.GetPrimAtPath(piv_path).IsValid():
-        stage.RemovePrim(piv_path)
-    piv = stage.DefinePrim(piv_path, "Xform")
-    UsdGeom.Xformable(piv).AddTranslateOp().Set(PIVOT_POS)
-    UsdPhysics.RigidBodyAPI.Apply(piv)
-    UsdPhysics.MassAPI.Apply(piv).GetMassAttr().Set(0.2)
-    px_piv = PhysxSchema.PhysxRigidBodyAPI.Apply(piv)
-    px_piv.GetAngularDampingAttr().Set(0.05)
-    px_piv.GetLinearDampingAttr().Set(0.0)
-    px_piv.GetSolverPositionIterationCountAttr().Set(16)
+    print(f"[FERS] No caster — roll+pitch locked, 2-wheel drive only")
 
-    # Wheel link
-    whl_path = f"{robot_path}/rear_caster_wheel"
-    if stage.GetPrimAtPath(whl_path).IsValid():
-        stage.RemovePrim(whl_path)
-    whl = stage.DefinePrim(whl_path, "Xform")
-    UsdGeom.Xformable(whl).AddTranslateOp().Set(WHEEL_POS)
-    UsdPhysics.RigidBodyAPI.Apply(whl)
-    UsdPhysics.MassAPI.Apply(whl).GetMassAttr().Set(0.3)
-    px_whl = PhysxSchema.PhysxRigidBodyAPI.Apply(whl)
-    px_whl.GetAngularDampingAttr().Set(0.05)
-    px_whl.GetLinearDampingAttr().Set(0.0)
-    px_whl.GetSolverPositionIterationCountAttr().Set(16)
+    # ── Arm joint limits — keep arms in front, no behind-the-back ────────────
+    # L_shoulder_pitch: negative=forward/down → allow [-90, 5] (no backward)
+    # R_shoulder_pitch: positive=forward/down → allow [-5, 90] (no backward)
+    ARM_LIMITS = {
+        # YAW (J1): arm swing — keep reasonable range
+        "L_shoulder_yaw_joint":   (-60, 60),
+        "R_shoulder_yaw_joint":   (-60, 60),
+        # PITCH (J2): keep original URDF range
+        "L_shoulder_pitch_joint": (-85, 85),
+        "R_shoulder_pitch_joint": (-85, 85),
+        # ROLL (J3, axis fixed Y): arm up/down — only forward
+        "L_shoulder_roll_joint":  (-90, 90),
+        "R_shoulder_roll_joint":  (-90, 90),
+        # ELBOW (J4, axis fixed X): forearm bend — only forward
+        "L_elbow_joint":          (-90, 90),
+        "R_elbow_joint":          (-90, 90),
+        # WRIST PITCH (J5, axis fixed Z):
+        "L_wrist_pitch_joint":    (-45, 45),
+        "R_wrist_pitch_joint":    (-45, 45),
+        # WRIST YAW (J6): forearm bend — confirmed correct
+        "L_wrist_yaw_joint":     (-90, 90),
+        "R_wrist_yaw_joint":     (-90, 90),
+    }
+    applied = 0
+    for jname, (lo, hi) in ARM_LIMITS.items():
+        j = stage.GetPrimAtPath(f"{robot_path}/joints/{jname}")
+        if j.IsValid():
+            j.GetAttribute("physics:lowerLimit").Set(float(lo))
+            j.GetAttribute("physics:upperLimit").Set(float(hi))
+            applied += 1
+        else:
+            print(f"[FERS] WARNING: joint not found at {robot_path}/joints/{jname}")
+    print(f"[FERS] Arm limits applied: {applied}/{len(ARM_LIMITS)} joints")
 
-    # Sphere collision on wheel (zero friction — rolls freely in any direction)
-    sph = UsdGeom.Sphere.Define(stage, f"{whl_path}/sphere")
-    sph.GetRadiusAttr().Set(WHEEL_RADIUS)
-    UsdPhysics.CollisionAPI.Apply(sph.GetPrim())
-    px_c = PhysxSchema.PhysxCollisionAPI.Apply(sph.GetPrim())
-    px_c.GetRestOffsetAttr().Set(0.001)
-    px_c.GetContactOffsetAttr().Set(0.002)
-    cmat = UsdPhysics.MaterialAPI.Apply(sph.GetPrim())
-    cmat.GetStaticFrictionAttr().Set(0.0)
-    cmat.GetDynamicFrictionAttr().Set(0.0)
-    cmat.GetRestitutionAttr().Set(0.0)
+    # ── Fix arm joint axes — URDF has wrong axes for several joints ──────────
+    # Confirmed by testing each joint individually in sim:
+    #   shoulder_roll: X → Y (was rolling, should pitch)
+    #   elbow:         Y → X (was yawing, should bend)
+    #   wrist_pitch:   Y → Z (was yawing, should pitch)
+    #   wrist_roll:    lock to 0 (not needed)
+    AXIS_FIXES = {
+        "L_shoulder_roll_joint":  "Y",
+        "R_shoulder_roll_joint":  "Y",
+        "L_elbow_joint":          "X",
+        "R_elbow_joint":          "X",
+        "L_wrist_pitch_joint":    "X",
+        "R_wrist_pitch_joint":    "X",
+    }
+    fixed = 0
+    for jname, new_axis in AXIS_FIXES.items():
+        j = stage.GetPrimAtPath(f"{robot_path}/joints/{jname}")
+        if j.IsValid():
+            old_axis = j.GetAttribute("physics:axis").Get()
+            j.GetAttribute("physics:axis").Set(new_axis)
+            fixed += 1
+            print(f"[FERS] {jname}: axis {old_axis} → {new_axis}")
+    print(f"[FERS] Axis fixes applied: {fixed}/{len(AXIS_FIXES)} joints")
 
-    # Swivel joint: base_link → pivot (Z axis = yaw swivel)
-    swivel_path = f"{robot_path}/rear_swivel_joint"
-    if stage.GetPrimAtPath(swivel_path).IsValid():
-        stage.RemovePrim(swivel_path)
-    swivel = UsdPhysics.RevoluteJoint.Define(stage, swivel_path)
-    swivel.GetBody0Rel().SetTargets([Sdf.Path(f"{robot_path}/base_link")])
-    swivel.GetBody1Rel().SetTargets([Sdf.Path(piv_path)])
-    swivel.GetAxisAttr().Set("Z")
-    swivel.GetLocalPos0Attr().Set(Gf.Vec3f(0, -0.30, -0.3442))  # base_link local
-    swivel.GetLocalPos1Attr().Set(Gf.Vec3f(0, 0, 0))
-    swivel.GetLowerLimitAttr().Set(-1e6)
-    swivel.GetUpperLimitAttr().Set(1e6)
+    # ── Lock wrist_roll (not needed) ─────────────────────────────────────────
+    for side in ("L", "R"):
+        jname = f"{side}_wrist_roll_joint"
+        j = stage.GetPrimAtPath(f"{robot_path}/joints/{jname}")
+        if j.IsValid():
+            j.GetAttribute("physics:lowerLimit").Set(0.0)
+            j.GetAttribute("physics:upperLimit").Set(0.0)
+    print(f"[FERS] Wrist roll joints locked")
 
-    # Axle joint: pivot → wheel (X axis = rolling)
-    axle_path = f"{robot_path}/rear_axle_joint"
-    if stage.GetPrimAtPath(axle_path).IsValid():
-        stage.RemovePrim(axle_path)
-    axle = UsdPhysics.RevoluteJoint.Define(stage, axle_path)
-    axle.GetBody0Rel().SetTargets([Sdf.Path(piv_path)])
-    axle.GetBody1Rel().SetTargets([Sdf.Path(whl_path)])
-    axle.GetAxisAttr().Set("X")
-    axle.GetLocalPos0Attr().Set(Gf.Vec3f(0, -0.05, -0.068))
-    axle.GetLocalPos1Attr().Set(Gf.Vec3f(0, 0, 0))
-    axle.GetLowerLimitAttr().Set(-1e6)
-    axle.GetUpperLimitAttr().Set(1e6)
-
-    print(f"[FERS] Rear caster: pivot at {PIVOT_POS}  wheel at {WHEEL_POS}")
+    # ── Arm drive tuning — heavy damping, no spring bounce ───────────────────
+    ARM_DRIVE_JOINTS = [
+        "L_shoulder_yaw_joint", "R_shoulder_yaw_joint",
+        "L_shoulder_pitch_joint", "R_shoulder_pitch_joint",
+        "L_shoulder_roll_joint", "R_shoulder_roll_joint",
+        "L_elbow_joint", "R_elbow_joint",
+        "L_wrist_pitch_joint", "R_wrist_pitch_joint",
+        "L_wrist_yaw_joint", "R_wrist_yaw_joint",
+        "L_wrist_roll_joint", "R_wrist_roll_joint",
+    ]
+    for jname in ARM_DRIVE_JOINTS:
+        j = stage.GetPrimAtPath(f"{robot_path}/joints/{jname}")
+        if j.IsValid():
+            drv = UsdPhysics.DriveAPI.Apply(j, "angular")
+            drv.GetStiffnessAttr().Set(500.0)
+            drv.GetDampingAttr().Set(200.0)
+            drv.GetMaxForceAttr().Set(1e4)
+    print(f"[FERS] Arm drives: stiffness=500  damping=200 (no bounce)")
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────

@@ -177,9 +177,24 @@ Upload files via SCP to `~/docker/isaac-sim/data/simulation/`, NOT `~/simulation
 | **WebRTC** | Browser-only, no install needed | `tools/connect.sh <IP> --webrtc` |
 | **Direct Moonlight** | No SSH tunnel (needs open ports) | `tools/connect.sh <IP> --direct` |
 
+## Proprietary Assets (Not Included)
+
+The FERS robot CAD model, URDF, STL meshes, and scene files are proprietary and excluded from this repository for privacy reasons. The following paths are gitignored:
+
+- `cad/` — original CAD/FBX source models
+- `simulation/*.urdf` — generated URDF (27 links, 26 joints)
+- `simulation/meshes/` — per-link STL meshes
+- `simulation/scene/` — environment USD files
+
+To use this repo, obtain the robot assets separately and place them in the `simulation/` directory.
+
 ## Repo Structure
 
 ```
+scripts/
+  load_fers_robot_new.py      # Robot loader (URDF import + physics setup)
+  start_teleop.py             # Keyboard teleoperation (WASD + arm control)
+  start_trajectory_waypoints.py  # Waypoint trajectory with arm poses
 tools/
   deploy.sh                   # Local deploy orchestrator
   connect.sh                  # SSH tunnel helper
@@ -188,9 +203,9 @@ tools/
   vultr_isaac_sim_setup.sh    # Setup script (Vultr Cloud)
   vultr_manage.sh             # Vultr snapshot/destroy/restore
   DEPLOY.md                   # Step-by-step deploy guide
-simulation/
+simulation/                   # (gitignored proprietary assets)
   fers_robot.urdf             # Generated URDF (27 links, 26 joints)
-  cad/                        # FBX source models (gitignored)
+  cad/                        # FBX source models
   meshes/                     # Per-link STL meshes
   scene/                      # Environment files (Interior.usdz)
   tools/
