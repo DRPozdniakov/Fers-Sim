@@ -23,20 +23,20 @@
 
 ```bash
 # Phase 1: upload + diagnose + install (20-30 min)
-bash tools/deploy.sh <IP>
+bash deploy/deploy.sh <IP>
 
 # Reboot VM
 ssh latoff@<IP> 'sudo reboot'
 
 # Wait 60s, then Phase 2: verify + start services
-bash tools/deploy.sh <IP> --phase2
+bash deploy/deploy.sh <IP> --phase2
 ```
 
 ### Option B: Manual (step by step)
 
 ```bash
 # 1. Upload
-scp tools/nebius_isaac_sim_setup.sh latoff@<IP>:~/
+scp deploy/nebius_isaac_sim_setup.sh latoff@<IP>:~/
 
 # 2. Diagnose (verify GPU, driver, disk)
 ssh latoff@<IP> 'sudo bash ~/nebius_isaac_sim_setup.sh --diagnose'
@@ -59,7 +59,7 @@ ssh latoff@<IP> 'sudo bash ~/nebius_isaac_sim_setup.sh --post-reboot'
 
 ```bash
 # 1. Open SSH tunnel for Sunshine web UI
-bash tools/connect.sh <IP> --sunshine
+bash deploy/connect.sh <IP> --sunshine
 ```
 
 2. Open browser: **https://localhost:47990**
@@ -94,7 +94,7 @@ First launch takes 10-15 min (shader compilation). The Isaac Sim window appears 
 ~/isaac-sim/launch_webrtc.sh
 
 # On local PC (new terminal):
-bash tools/connect.sh <IP> --webrtc
+bash deploy/connect.sh <IP> --webrtc
 
 # Open browser:
 # http://127.0.0.1:8211/streaming/webrtc-client/?server=127.0.0.1
@@ -122,7 +122,7 @@ cat /tmp/sunshine.log | grep -E "encoder|Fatal"      # Sunshine status
 | Problem | Fix |
 |---------|-----|
 | SSH passphrase keeps failing | `eval $(ssh-agent) && ssh-add ~/.ssh/id_ed25519` |
-| deploy.sh can't SCP | Upload manually: `scp tools/nebius_isaac_sim_setup.sh latoff@<IP>:~/` |
+| deploy.sh can't SCP | Upload manually: `scp deploy/nebius_isaac_sim_setup.sh latoff@<IP>:~/` |
 | Moonlight shows login screen | SSH in, run: `sudo systemctl restart lightdm` |
 | Can't type password on login | `echo "latoff:isaac2026" \| sudo chpasswd` via SSH |
 | Sunshine not running after reboot | `sudo DISPLAY=:0 XAUTHORITY=/var/run/lightdm/root/:0 nohup sunshine > /tmp/sunshine.log 2>&1 &` |
@@ -137,7 +137,7 @@ For detailed troubleshooting see: `md/nebius-isaac-sim-deployment.md`
 ## Kill Tunnels
 
 ```bash
-bash tools/connect.sh --kill
+bash deploy/connect.sh --kill
 ```
 
 ---

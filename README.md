@@ -11,10 +11,10 @@ Simulate the [FERS humanoid robot](https://fers.ai) in [NVIDIA Isaac Sim 5.1.0](
 Provisions a GPU VM with Isaac Sim, Vulkan, and remote desktop (Sunshine + Moonlight).
 
 ```
-tools/deploy.sh <VM_IP>              # Phase 1: system packages, Docker, Sunshine
+deploy/deploy.sh <VM_IP>              # Phase 1: system packages, Docker, Sunshine
 ssh user@<VM_IP> 'sudo reboot'       # Reboot for kernel modules
-tools/deploy.sh <VM_IP> --phase2     # Phase 2: purge apt nvidia, install .run userspace
-tools/connect.sh <VM_IP> --sunshine  # SSH tunnel + Moonlight pairing
+deploy/deploy.sh <VM_IP> --phase2     # Phase 2: purge apt nvidia, install .run userspace
+deploy/connect.sh <VM_IP> --sunshine  # SSH tunnel + Moonlight pairing
 ```
 
 **Key constraint:** cloud providers ship headless NVIDIA drivers without Vulkan. The deploy script purges all apt nvidia packages, installs userspace-only via `.run` installer (`--no-kernel-modules`), and backs up kernel modules for reboot resilience.
@@ -25,7 +25,7 @@ Converts the FERS robot FBX model into a URDF with per-link STL meshes.
 
 ```
 pip install assimp-py numpy
-python tools/extract_fbx.py
+python deploy/extract_fbx.py
 ```
 
 - Input: `simulation/cad/fers_fbx_02_Tpose.fbx` (T-pose model)
@@ -173,9 +173,9 @@ Upload files via SCP to `~/docker/isaac-sim/data/simulation/`, NOT `~/simulation
 
 | Method | Use Case | How |
 |--------|----------|-----|
-| **Sunshine + Moonlight** | Full interactive desktop, low latency | `tools/connect.sh <IP> --sunshine` |
-| **WebRTC** | Browser-only, no install needed | `tools/connect.sh <IP> --webrtc` |
-| **Direct Moonlight** | No SSH tunnel (needs open ports) | `tools/connect.sh <IP> --direct` |
+| **Sunshine + Moonlight** | Full interactive desktop, low latency | `deploy/connect.sh <IP> --sunshine` |
+| **WebRTC** | Browser-only, no install needed | `deploy/connect.sh <IP> --webrtc` |
+| **Direct Moonlight** | No SSH tunnel (needs open ports) | `deploy/connect.sh <IP> --direct` |
 
 ## Proprietary Assets (Not Included)
 
@@ -195,7 +195,7 @@ scripts/
   load_fers_robot_new.py      # Robot loader (URDF import + physics setup)
   start_teleop.py             # Keyboard teleoperation (WASD + arm control)
   start_trajectory_waypoints.py  # Waypoint trajectory with arm poses
-tools/
+deploy/
   deploy.sh                   # Local deploy orchestrator
   connect.sh                  # SSH tunnel helper
   extract_fbx.py              # FBX to URDF+STL extraction

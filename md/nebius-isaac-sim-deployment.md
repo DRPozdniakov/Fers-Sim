@@ -12,7 +12,7 @@
 
 ```bash
 # 1. Upload setup script
-scp tools/nebius_isaac_sim_setup.sh latoff@<IP>:~/
+scp deploy/nebius_isaac_sim_setup.sh latoff@<IP>:~/
 
 # 2. Diagnose
 ssh latoff@<IP> 'sudo bash ~/nebius_isaac_sim_setup.sh --diagnose'
@@ -27,15 +27,15 @@ ssh latoff@<IP> 'sudo reboot'
 ssh latoff@<IP> 'sudo bash ~/nebius_isaac_sim_setup.sh --post-reboot'
 
 # 6. Connect
-bash tools/connect.sh <IP> --sunshine
+bash deploy/connect.sh <IP> --sunshine
 # Open https://localhost:47990 → pair Moonlight → connect
 ```
 
 Or use the deploy helper:
 ```bash
-bash tools/deploy.sh <IP>
+bash deploy/deploy.sh <IP>
 # after reboot:
-bash tools/deploy.sh <IP> --phase2
+bash deploy/deploy.sh <IP> --phase2
 ```
 
 ## How the Vulkan Fix Works
@@ -219,9 +219,9 @@ Isaac Sim (Docker) ──── Vulkan ──── NVIDIA L40S
 
 | File | Purpose |
 |------|---------|
-| `tools/nebius_isaac_sim_setup.sh` | Main setup (diagnose → phase1 → reboot → phase2) |
-| `tools/deploy.sh` | Local deploy orchestrator |
-| `tools/connect.sh` | Local SSH tunnel helper (--sunshine / --webrtc / --kill) |
+| `deploy/nebius_isaac_sim_setup.sh` | Main setup (diagnose → phase1 → reboot → phase2) |
+| `deploy/deploy.sh` | Local deploy orchestrator |
+| `deploy/connect.sh` | Local SSH tunnel helper (--sunshine / --webrtc / --kill) |
 | `~/isaac-sim/launch_gui.sh` | Launch Isaac Sim with GUI (on VM) |
 | `~/isaac-sim/launch_webrtc.sh` | Launch Isaac Sim WebRTC streaming (on VM) |
 | `~/isaac-sim/check_gpu.sh` | GPU/Vulkan/Docker diagnostics (on VM) |

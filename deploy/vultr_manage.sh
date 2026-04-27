@@ -12,13 +12,13 @@
 #   Auth:    export VULTR_API_KEY="your-api-key"
 #
 # USAGE:
-#   bash tools/vultr_manage.sh list               # List GPU instances
-#   bash tools/vultr_manage.sh snapshot <ID>       # Create snapshot
-#   bash tools/vultr_manage.sh snapshots           # List snapshots
-#   bash tools/vultr_manage.sh destroy <ID>        # Destroy instance (STOPS BILLING)
-#   bash tools/vultr_manage.sh restore <SNAP_ID>   # Restore from snapshot
-#   bash tools/vultr_manage.sh status <ID>         # Check instance status
-#   bash tools/vultr_manage.sh cost                # Show current billing estimate
+#   bash deploy/vultr_manage.sh list               # List GPU instances
+#   bash deploy/vultr_manage.sh snapshot <ID>       # Create snapshot
+#   bash deploy/vultr_manage.sh snapshots           # List snapshots
+#   bash deploy/vultr_manage.sh destroy <ID>        # Destroy instance (STOPS BILLING)
+#   bash deploy/vultr_manage.sh restore <SNAP_ID>   # Restore from snapshot
+#   bash deploy/vultr_manage.sh status <ID>         # Check instance status
+#   bash deploy/vultr_manage.sh cost                # Show current billing estimate
 # =============================================================================
 
 set -euo pipefail
@@ -63,7 +63,7 @@ case "$ACTION" in
     status)
         check_cli
         if [[ -z "$INSTANCE_ID" ]]; then
-            echo "Usage: bash tools/vultr_manage.sh status <INSTANCE_ID>"
+            echo "Usage: bash deploy/vultr_manage.sh status <INSTANCE_ID>"
             exit 1
         fi
         vultr-cli instance get "$INSTANCE_ID"
@@ -73,8 +73,8 @@ case "$ACTION" in
     snapshot)
         check_cli
         if [[ -z "$INSTANCE_ID" ]]; then
-            echo "Usage: bash tools/vultr_manage.sh snapshot <INSTANCE_ID>"
-            echo "Get ID from: bash tools/vultr_manage.sh list"
+            echo "Usage: bash deploy/vultr_manage.sh snapshot <INSTANCE_ID>"
+            echo "Get ID from: bash deploy/vultr_manage.sh list"
             exit 1
         fi
         SNAP_DESC="isaac-sim-$(date +%Y%m%d-%H%M)"
@@ -82,7 +82,7 @@ case "$ACTION" in
         log "This takes 5-15 minutes depending on disk size."
         vultr-cli snapshot create -i "$INSTANCE_ID" -d "$SNAP_DESC"
         log "Snapshot creation started. Check progress:"
-        log "  bash tools/vultr_manage.sh snapshots"
+        log "  bash deploy/vultr_manage.sh snapshots"
         ;;
 
     # -----------------------------------------------------------------------
@@ -96,7 +96,7 @@ case "$ACTION" in
     destroy)
         check_cli
         if [[ -z "$INSTANCE_ID" ]]; then
-            echo "Usage: bash tools/vultr_manage.sh destroy <INSTANCE_ID>"
+            echo "Usage: bash deploy/vultr_manage.sh destroy <INSTANCE_ID>"
             exit 1
         fi
         log "Instance $INSTANCE_ID will be DESTROYED. This stops billing."
@@ -116,8 +116,8 @@ case "$ACTION" in
         check_cli
         SNAP_ID="${2:-}"
         if [[ -z "$SNAP_ID" ]]; then
-            echo "Usage: bash tools/vultr_manage.sh restore <SNAPSHOT_ID>"
-            echo "Get ID from: bash tools/vultr_manage.sh snapshots"
+            echo "Usage: bash deploy/vultr_manage.sh restore <SNAPSHOT_ID>"
+            echo "Get ID from: bash deploy/vultr_manage.sh snapshots"
             exit 1
         fi
 
@@ -146,7 +146,7 @@ case "$ACTION" in
             --label "isaac-sim-restored"
 
         log "Instance creating. Check status:"
-        log "  bash tools/vultr_manage.sh list"
+        log "  bash deploy/vultr_manage.sh list"
         ;;
 
     # -----------------------------------------------------------------------
@@ -163,7 +163,7 @@ case "$ACTION" in
     help|*)
         echo "Vultr Instance Management"
         echo ""
-        echo "Usage: bash tools/vultr_manage.sh <command> [args]"
+        echo "Usage: bash deploy/vultr_manage.sh <command> [args]"
         echo ""
         echo "Commands:"
         echo "  list                List all instances"
@@ -175,11 +175,11 @@ case "$ACTION" in
         echo "  cost                Show billing info"
         echo ""
         echo "Workflow to save money:"
-        echo "  1. bash tools/vultr_manage.sh list              # Get instance ID"
-        echo "  2. bash tools/vultr_manage.sh snapshot <ID>     # Save state"
-        echo "  3. bash tools/vultr_manage.sh snapshots         # Wait until complete"
-        echo "  4. bash tools/vultr_manage.sh destroy <ID>      # Stop billing"
-        echo "  5. (later) bash tools/vultr_manage.sh restore <SNAP_ID>  # Resume"
+        echo "  1. bash deploy/vultr_manage.sh list              # Get instance ID"
+        echo "  2. bash deploy/vultr_manage.sh snapshot <ID>     # Save state"
+        echo "  3. bash deploy/vultr_manage.sh snapshots         # Wait until complete"
+        echo "  4. bash deploy/vultr_manage.sh destroy <ID>      # Stop billing"
+        echo "  5. (later) bash deploy/vultr_manage.sh restore <SNAP_ID>  # Resume"
         echo ""
         echo "Prerequisites:"
         echo "  - Install vultr-cli: https://github.com/vultr/vultr-cli"

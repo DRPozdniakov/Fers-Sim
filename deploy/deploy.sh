@@ -4,17 +4,17 @@
 # Run this from your LOCAL machine (not the server)
 # =============================================================================
 # USAGE:
-#   bash tools/deploy.sh <IP>                    # Full deploy (Phase 1 + instructions)
-#   bash tools/deploy.sh <IP> --phase2           # Post-reboot (Phase 2)
-#   bash tools/deploy.sh <IP> --upload           # Upload script only
-#   bash tools/deploy.sh <IP> --diagnose         # Run diagnostic only
-#   bash tools/deploy.sh <IP> --status           # Check VM status
+#   bash deploy/deploy.sh <IP>                    # Full deploy (Phase 1 + instructions)
+#   bash deploy/deploy.sh <IP> --phase2           # Post-reboot (Phase 2)
+#   bash deploy/deploy.sh <IP> --upload           # Upload script only
+#   bash deploy/deploy.sh <IP> --diagnose         # Run diagnostic only
+#   bash deploy/deploy.sh <IP> --status           # Check VM status
 # =============================================================================
 
 set -euo pipefail
 
 if [ -z "${1:-}" ]; then
-    echo "Usage: bash tools/deploy.sh <IP> [COMMAND]"
+    echo "Usage: bash deploy/deploy.sh <IP> [COMMAND]"
     echo ""
     echo "Commands:"
     echo "  (none)       Full deploy: upload + diagnose + Phase 1"
@@ -24,17 +24,17 @@ if [ -z "${1:-}" ]; then
     echo "  --status     Check GPU, Vulkan, Docker, Sunshine status"
     echo ""
     echo "Full workflow:"
-    echo "  bash tools/deploy.sh <IP>              # ~20-30 min"
+    echo "  bash deploy/deploy.sh <IP>              # ~20-30 min"
     echo "  ssh <user>@<IP> 'sudo reboot'           # wait ~60s"
-    echo "  bash tools/deploy.sh <IP> --phase2     # ~5 min"
-    echo "  bash tools/connect.sh <IP> --sunshine   # connect Moonlight"
+    echo "  bash deploy/deploy.sh <IP> --phase2     # ~5 min"
+    echo "  bash deploy/connect.sh <IP> --sunshine   # connect Moonlight"
     exit 1
 fi
 
 IP="$1"
 CMD="${2:-full}"
 SCRIPT="nebius_isaac_sim_setup.sh"
-SCRIPT_PATH="tools/$SCRIPT"
+SCRIPT_PATH="deploy/$SCRIPT"
 
 # Auto-detect user and SSH key based on IP
 case "$IP" in
@@ -72,7 +72,7 @@ case "$CMD" in
         echo ""
         echo "============================================================"
         echo " Done. Connect with:"
-        echo "   bash tools/connect.sh $IP --sunshine"
+        echo "   bash deploy/connect.sh $IP --sunshine"
         echo "============================================================"
         ;;
     --status)
@@ -96,7 +96,7 @@ case "$CMD" in
         echo " Phase 1 complete. Now:"
         echo "   ssh $USER@$IP 'sudo reboot'"
         echo "   # wait ~60 seconds"
-        echo "   bash tools/deploy.sh $IP --phase2"
+        echo "   bash deploy/deploy.sh $IP --phase2"
         echo "============================================================"
         ;;
 esac

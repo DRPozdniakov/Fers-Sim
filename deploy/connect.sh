@@ -4,16 +4,16 @@
 # Run this from your LOCAL machine (not the server)
 # =============================================================================
 # USAGE:
-#   bash tools/connect.sh <IP> --sunshine    # SSH tunnel for Sunshine web UI
-#   bash tools/connect.sh <IP> --webrtc      # SSH tunnel for WebRTC streaming
-#   bash tools/connect.sh <IP> --direct      # Open Moonlight directly (no tunnel)
-#   bash tools/connect.sh --kill             # Kill existing tunnels
+#   bash deploy/connect.sh <IP> --sunshine    # SSH tunnel for Sunshine web UI
+#   bash deploy/connect.sh <IP> --webrtc      # SSH tunnel for WebRTC streaming
+#   bash deploy/connect.sh <IP> --direct      # Open Moonlight directly (no tunnel)
+#   bash deploy/connect.sh --kill             # Kill existing tunnels
 # =============================================================================
 
 set -euo pipefail
 
 if [ -z "${1:-}" ]; then
-    echo "Usage: bash tools/connect.sh <IP> <MODE>"
+    echo "Usage: bash deploy/connect.sh <IP> <MODE>"
     echo ""
     echo "Modes:"
     echo "  --sunshine   SSH tunnel to Sunshine web UI"

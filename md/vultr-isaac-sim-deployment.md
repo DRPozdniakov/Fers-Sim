@@ -33,7 +33,7 @@
 ssh root@<VULTR_IP>
 
 # Upload script
-# (from your local machine: scp tools/vultr_isaac_sim_setup.sh root@<VULTR_IP>:/root/)
+# (from your local machine: scp deploy/vultr_isaac_sim_setup.sh root@<VULTR_IP>:/root/)
 
 # Check if the system is viable BEFORE installing anything
 bash vultr_isaac_sim_setup.sh --diagnose
